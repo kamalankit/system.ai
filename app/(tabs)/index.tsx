@@ -20,7 +20,6 @@ import {
 import { useRouter } from 'expo-router';
 import DomainCard from '@/components/DomainCard';
 import DailyHardTruth from '@/components/DailyHardTruth';
-import QuickHabitTracker from '@/components/QuickHabitTracker';
 import FocusMode from '@/components/FocusMode';
 import { userData } from '@/data/mockData';
 import { enhancedUserData, getSuccessRateForPeriod, getStreakData, getTrendDirection } from '@/data/enhancedMockData';
@@ -222,6 +221,9 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* Hunter's Wisdom (Daily Hard Truth) - Moved here */}
+        <DailyHardTruth />
+
         {/* Battle Training Quick Access */}
         <View style={styles.battleTrainingSection}>
           <View style={styles.sectionHeader}>
@@ -260,9 +262,6 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Daily Hard Truth */}
-        <DailyHardTruth />
 
         {/* Domains Grid */}
         <View style={styles.sectionHeader}>
@@ -321,9 +320,6 @@ export default function DashboardScreen() {
             <Text style={styles.activityXP}>+60 XP</Text>
           </View>
         </View>
-
-        {/* Quick Habit Tracker */}
-        <QuickHabitTracker />
 
         {/* Focus Mode */}
         <FocusMode />
