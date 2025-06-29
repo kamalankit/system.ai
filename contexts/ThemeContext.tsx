@@ -30,10 +30,12 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Load saved theme mode on app start
   useEffect(() => {
+    let isMounted = true;
+
     const loadThemeMode = async () => {
       try {
         const savedMode = await AsyncStorage.getItem('themeMode');
-        if (savedMode && ['system', 'light', 'dark'].includes(savedMode)) {
+        if (isMounted && savedMode && ['system', 'light', 'dark'].includes(savedMode)) {
           setThemeModeState(savedMode as ThemeMode);
         }
       } catch (error) {
@@ -42,6 +44,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     };
 
     loadThemeMode();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Listen to system theme changes

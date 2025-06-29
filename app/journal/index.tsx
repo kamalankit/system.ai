@@ -29,7 +29,7 @@ export default function JournalIndexScreen() {
       description: 'Personal reflection and inner growth exploration',
       icon: BookOpen,
       color: '#9775FA',
-      route: '/journal',
+      route: '/journal/shadow',
     },
   ];
 

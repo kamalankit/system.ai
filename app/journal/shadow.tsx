@@ -24,7 +24,7 @@ interface JournalEntry {
   mood: 'positive' | 'neutral' | 'negative';
 }
 
-export default function JournalScreen() {
+export default function ShadowWorkJournalScreen() {
   const router = useRouter();
   const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const [isWriting, setIsWriting] = useState(false);
