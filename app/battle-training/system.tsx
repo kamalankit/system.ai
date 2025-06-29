@@ -10,18 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { 
-  ChevronLeft, 
-  Zap, 
-  Brain, 
-  Target, 
-  Calendar,
-  CheckCircle,
-  Circle,
-  TrendingUp,
-  Clock,
-  Flame
-} from 'lucide-react-native';
+import { ChevronLeft, Zap, Brain, Target, Calendar, CircleCheck as CheckCircle, Circle, TrendingUp, Clock, Flame } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SystemData {

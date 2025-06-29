@@ -11,18 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { 
-  ChevronLeft, 
-  Home, 
-  Car, 
-  DollarSign, 
-  User, 
-  Camera, 
-  Plus,
-  Target,
-  Calendar,
-  TrendingUp
-} from 'lucide-react-native';
+import { ChevronLeft, Chrome as Home, Car, DollarSign, User, Camera, Plus, Target, Calendar, TrendingUp } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface VisualizationGoal {

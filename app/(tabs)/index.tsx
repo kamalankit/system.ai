@@ -8,22 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  User,
-  Settings,
-  Flame,
-  Target,
-  Bell,
-  Trophy,
-  BookOpen,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Calendar,
-  Zap,
-  Brain,
-  CheckCircle,
-} from 'lucide-react-native';
+import { User, Settings, Flame, Target, Bell, Trophy, BookOpen, TrendingUp, TrendingDown, Minus, Calendar, Zap, Brain, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { 
   Target as TargetIcon, 
   Brain as BrainIcon, 
