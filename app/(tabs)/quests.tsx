@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
@@ -29,9 +28,12 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { userData, generateDailyQuests, completeQuest } from '@/data/mockData';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import CustomAlert from '@/components/CustomAlert';
 
 export default function QuestsScreen() {
   const router = useRouter();
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const [completedQuests, setCompletedQuests] = useState(new Set());
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [activeTimer, setActiveTimer] = useState<number | null>(null);
@@ -77,11 +79,12 @@ export default function QuestsScreen() {
         setQuests([...userData.quests]);
         
         // Show completion alert
-        Alert.alert(
-          'Quest Completed! 🎉',
-          `You earned ${completedQuest.xp} XP!`,
-          [{ text: 'Awesome!', style: 'default' }]
-        );
+        showAlert({
+          title: 'Quest Completed! 🎉',
+          message: `You earned ${completedQuest.xp} XP!`,
+          type: 'success',
+          buttons: [{ text: 'Awesome!', style: 'default' }],
+        });
       }
     }
   };
@@ -114,21 +117,26 @@ export default function QuestsScreen() {
   };
 
   const handleRefreshDailyQuests = () => {
-    Alert.alert(
-      'Refresh Daily Quests',
-      'This will generate new daily quests for today. Continue?',
-      [
+    showAlert({
+      title: 'Refresh Daily Quests',
+      message: 'This will generate new daily quests for today. Continue?',
+      type: 'warning',
+      buttons: [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Refresh',
           onPress: () => {
             const newDailyQuests = generateDailyQuests();
             setQuests([...userData.quests]);
-            Alert.alert('Success', 'Daily quests refreshed!');
+            showAlert({
+              title: 'Success! ✨',
+              message: 'Daily quests refreshed!',
+              type: 'success',
+            });
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const QuestCard = ({ quest }: { quest: any }) => {
@@ -404,6 +412,16 @@ export default function QuestsScreen() {
           ))
         )}
       </ScrollView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }

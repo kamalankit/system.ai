@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -14,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Plus, Calendar, Search, BookOpen, CreditCard as Edit3, Trash2, Save } from 'lucide-react-native';
 import { userData, addJournalEntry, updateJournalEntry, deleteJournalEntry } from '@/data/mockData';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import CustomAlert from '@/components/CustomAlert';
 
 interface JournalEntry {
   id: number;
@@ -25,6 +26,7 @@ interface JournalEntry {
 
 export default function JournalScreen() {
   const router = useRouter();
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const [isWriting, setIsWriting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentEntry, setCurrentEntry] = useState<JournalEntry | null>(null);
@@ -53,7 +55,11 @@ export default function JournalScreen() {
 
   const handleSaveEntry = () => {
     if (!entryTitle.trim() || !entryContent.trim()) {
-      Alert.alert('Error', 'Please fill in both title and content');
+      showAlert({
+        title: 'Validation Error',
+        message: 'Please fill in both title and content',
+        type: 'error',
+      });
       return;
     }
 
@@ -77,12 +83,13 @@ export default function JournalScreen() {
       setJournalEntries([...userData.journalEntries]);
     }
 
-    Alert.alert(
-      'Entry Saved',
-      'Your journal entry has been saved successfully.',
-      [
+    showAlert({
+      title: 'Entry Saved! ✨',
+      message: 'Your journal entry has been saved successfully.',
+      type: 'success',
+      buttons: [
         {
-          text: 'OK',
+          text: 'Continue',
           onPress: () => {
             setIsWriting(false);
             setCurrentEntry(null);
@@ -90,15 +97,16 @@ export default function JournalScreen() {
             setEntryContent('');
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleDeleteEntry = (entryId: number) => {
-    Alert.alert(
-      'Delete Entry',
-      'Are you sure you want to delete this journal entry?',
-      [
+    showAlert({
+      title: 'Delete Entry',
+      message: 'Are you sure you want to delete this journal entry? This action cannot be undone.',
+      type: 'warning',
+      buttons: [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
@@ -106,11 +114,16 @@ export default function JournalScreen() {
           onPress: () => {
             if (deleteJournalEntry(entryId)) {
               setJournalEntries([...userData.journalEntries]);
+              showAlert({
+                title: 'Entry Deleted',
+                message: 'Your journal entry has been deleted.',
+                type: 'success',
+              });
             }
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const getMoodColor = (mood: string) => {
@@ -194,6 +207,16 @@ export default function JournalScreen() {
             />
           </ScrollView>
         </KeyboardAvoidingView>
+
+        {/* Custom Alert */}
+        <CustomAlert
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          buttons={alertConfig.buttons}
+          onClose={hideAlert}
+        />
       </SafeAreaView>
     );
   }
@@ -299,6 +322,16 @@ export default function JournalScreen() {
           ))
         )}
       </ScrollView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }

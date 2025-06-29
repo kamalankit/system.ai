@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  Alert,
   Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,20 +24,24 @@ import {
   Trash2, 
   ChevronRight 
 } from 'lucide-react-native';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import CustomAlert from '@/components/CustomAlert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const handleSignOut = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
+    showAlert({
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out?',
+      type: 'warning',
+      buttons: [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -61,23 +64,38 @@ export default function SettingsScreen() {
                 'userSettings',
               ]);
               
-              // Reset navigation to auth screen
-              router.replace('/auth');
+              // Show success message
+              showAlert({
+                title: 'Signed Out Successfully',
+                message: 'You have been signed out of your account.',
+                type: 'success',
+                buttons: [
+                  {
+                    text: 'OK',
+                    onPress: () => router.replace('/auth'),
+                  },
+                ],
+              });
             } catch (error) {
               console.error('Error signing out:', error);
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              showAlert({
+                title: 'Error',
+                message: 'Failed to sign out. Please try again.',
+                type: 'error',
+              });
             }
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Delete Account',
-      'This action cannot be undone. All your data will be permanently deleted.',
-      [
+    showAlert({
+      title: 'Delete Account',
+      message: 'This action cannot be undone. All your data will be permanently deleted.',
+      type: 'error',
+      buttons: [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -89,15 +107,29 @@ export default function SettingsScreen() {
             try {
               // Clear all data and navigate to auth
               await AsyncStorage.clear();
-              router.replace('/auth');
+              showAlert({
+                title: 'Account Deleted',
+                message: 'Your account has been permanently deleted.',
+                type: 'success',
+                buttons: [
+                  {
+                    text: 'OK',
+                    onPress: () => router.replace('/auth'),
+                  },
+                ],
+              });
             } catch (error) {
               console.error('Error deleting account:', error);
-              Alert.alert('Error', 'Failed to delete account. Please try again.');
+              showAlert({
+                title: 'Error',
+                message: 'Failed to delete account. Please try again.',
+                type: 'error',
+              });
             }
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleClearCache = async () => {
@@ -105,10 +137,18 @@ export default function SettingsScreen() {
       // Clear only cache data, not user data
       await AsyncStorage.removeItem('imageCache');
       await AsyncStorage.removeItem('tempData');
-      Alert.alert('Success', 'Cache cleared successfully');
+      showAlert({
+        title: 'Cache Cleared! ✨',
+        message: 'Cache cleared successfully',
+        type: 'success',
+      });
     } catch (error) {
       console.error('Error clearing cache:', error);
-      Alert.alert('Error', 'Failed to clear cache');
+      showAlert({
+        title: 'Error',
+        message: 'Failed to clear cache',
+        type: 'error',
+      });
     }
   };
 
@@ -125,7 +165,11 @@ export default function SettingsScreen() {
         {
           icon: Shield,
           label: 'Privacy Settings',
-          action: () => console.log('Privacy Settings'),
+          action: () => showAlert({
+            title: 'Privacy Settings',
+            message: 'Privacy settings will be available in the next update.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
         {
@@ -157,7 +201,11 @@ export default function SettingsScreen() {
         {
           icon: Smartphone,
           label: 'App Preferences',
-          action: () => console.log('App Preferences'),
+          action: () => showAlert({
+            title: 'App Preferences',
+            message: 'Additional preferences will be available soon.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
       ],
@@ -168,7 +216,11 @@ export default function SettingsScreen() {
         {
           icon: Download,
           label: 'Export Data',
-          action: () => console.log('Export Data'),
+          action: () => showAlert({
+            title: 'Export Data',
+            message: 'Data export feature will be available in the next update.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
         {
@@ -185,13 +237,21 @@ export default function SettingsScreen() {
         {
           icon: HelpCircle,
           label: 'Help & FAQ',
-          action: () => console.log('Help & FAQ'),
+          action: () => showAlert({
+            title: 'Help & FAQ',
+            message: 'Visit our help center for detailed guides and frequently asked questions.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
         {
           icon: Smartphone,
           label: 'About',
-          action: () => console.log('About'),
+          action: () => showAlert({
+            title: 'About Hunter Evolution',
+            message: 'Version 1.0.0\n\nTransform your life through systematic evolution across six domains of human potential.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
       ],
@@ -290,6 +350,16 @@ export default function SettingsScreen() {
           <Text style={styles.versionSubtext}>Built with ❤️ for hunters</Text>
         </View>
       </ScrollView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }

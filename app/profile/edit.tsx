@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Keyboard,
@@ -25,6 +24,8 @@ import {
   Camera
 } from 'lucide-react-native';
 import { userData } from '@/data/mockData';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import CustomAlert from '@/components/CustomAlert';
 
 interface ProfileData {
   name: string;
@@ -38,6 +39,7 @@ interface ProfileData {
 
 export default function EditProfileScreen() {
   const router = useRouter();
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
   const [profileData, setProfileData] = useState<ProfileData>({
     name: userData.profile.name,
     email: 'hunter@evolution.com',
@@ -62,38 +64,48 @@ export default function EditProfileScreen() {
     
     // Validate required fields
     if (!profileData.name.trim()) {
-      Alert.alert('Error', 'Name is required');
+      showAlert({
+        title: 'Validation Error',
+        message: 'Name is required',
+        type: 'error',
+      });
       return;
     }
     
     if (!profileData.email.trim()) {
-      Alert.alert('Error', 'Email is required');
+      showAlert({
+        title: 'Validation Error',
+        message: 'Email is required',
+        type: 'error',
+      });
       return;
     }
 
     // Simulate saving profile
-    Alert.alert(
-      'Profile Updated',
-      'Your profile has been updated successfully!',
-      [
+    showAlert({
+      title: 'Profile Updated! 🎉',
+      message: 'Your profile has been updated successfully!',
+      type: 'success',
+      buttons: [
         {
-          text: 'OK',
+          text: 'Continue',
           onPress: () => router.back(),
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleChangeAvatar = () => {
-    Alert.alert(
-      'Change Avatar',
-      'Choose an option',
-      [
+    showAlert({
+      title: 'Change Avatar',
+      message: 'Choose how you want to update your avatar',
+      type: 'info',
+      buttons: [
         { text: 'Camera', onPress: () => console.log('Open camera') },
         { text: 'Photo Library', onPress: () => console.log('Open photo library') },
         { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+      ],
+    });
   };
 
   const updateField = (field: keyof ProfileData, value: string) => {
@@ -371,6 +383,16 @@ export default function EditProfileScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }

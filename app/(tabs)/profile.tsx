@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Switch,
   Platform,
-  Alert,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -31,6 +30,8 @@ import {
 } from 'lucide-react-native';
 import { userData } from '@/data/mockData';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useCustomAlert } from '@/hooks/useCustomAlert';
+import CustomAlert from '@/components/CustomAlert';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
@@ -39,6 +40,7 @@ export default function ProfileScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const insets = useSafeAreaInsets();
+  const { alertConfig, showAlert, hideAlert } = useCustomAlert();
 
   const profileStats = [
     {
@@ -70,10 +72,11 @@ export default function ProfileScreen() {
   };
 
   const handleSignOut = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
+    showAlert({
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out?',
+      type: 'warning',
+      buttons: [
         {
           text: 'Cancel',
           style: 'cancel',
@@ -96,16 +99,30 @@ export default function ProfileScreen() {
                 'userSettings',
               ]);
               
-              // Reset navigation to auth screen
-              router.replace('/auth');
+              // Show success message
+              showAlert({
+                title: 'Signed Out Successfully',
+                message: 'You have been signed out of your account.',
+                type: 'success',
+                buttons: [
+                  {
+                    text: 'OK',
+                    onPress: () => router.replace('/auth'),
+                  },
+                ],
+              });
             } catch (error) {
               console.error('Error signing out:', error);
-              Alert.alert('Error', 'Failed to sign out. Please try again.');
+              showAlert({
+                title: 'Error',
+                message: 'Failed to sign out. Please try again.',
+                type: 'error',
+              });
             }
           },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const getThemeIcon = () => {
@@ -151,7 +168,11 @@ export default function ProfileScreen() {
         {
           icon: Shield,
           label: 'Privacy Settings',
-          action: () => console.log('Privacy Settings'),
+          action: () => showAlert({
+            title: 'Privacy Settings',
+            message: 'Privacy settings will be available in the next update.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
         {
@@ -183,7 +204,11 @@ export default function ProfileScreen() {
         {
           icon: Smartphone,
           label: 'App Preferences',
-          action: () => console.log('App Preferences'),
+          action: () => showAlert({
+            title: 'App Preferences',
+            message: 'Additional preferences will be available soon.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
       ],
@@ -206,13 +231,21 @@ export default function ProfileScreen() {
         {
           icon: HelpCircle,
           label: 'Help & FAQ',
-          action: () => console.log('Help & FAQ'),
+          action: () => showAlert({
+            title: 'Help & FAQ',
+            message: 'Visit our help center for detailed guides and frequently asked questions.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
         {
           icon: Settings,
           label: 'About',
-          action: () => console.log('About'),
+          action: () => showAlert({
+            title: 'About Hunter Evolution',
+            message: 'Version 1.0.0\n\nTransform your life through systematic evolution across six domains of human potential.',
+            type: 'info',
+          }),
           hasChevron: true,
         },
       ],
@@ -359,6 +392,16 @@ export default function ProfileScreen() {
           <Text style={styles.versionText}>Hunter Evolution v1.0.0</Text>
         </View>
       </ScrollView>
+
+      {/* Custom Alert */}
+      <CustomAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={hideAlert}
+      />
     </SafeAreaView>
   );
 }
