@@ -12,7 +12,6 @@ import {
   User,
   Settings,
   Bell,
-  Trophy,
   BookOpen,
 } from 'lucide-react-native';
 import { 
@@ -56,7 +55,6 @@ export default function DashboardScreen() {
   };
 
   const handleStreakPress = () => {
-    // Navigate to streak details or show streak history modal
     console.log('Show streak details');
   };
 
@@ -65,7 +63,6 @@ export default function DashboardScreen() {
   };
 
   const handleWeeklyProgressPress = () => {
-    // Navigate to weekly breakdown or analytics
     router.push('/(tabs)/evolution');
   };
 
@@ -118,7 +115,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Quick Stats - Only 3 Cards */}
+        {/* Quick Stats - Compact 3 Cards */}
         <View style={styles.statsContainer}>
           <StreakCard onPress={handleStreakPress} />
           <DailyProgressCard onPress={handleDailyProgressPress} />
@@ -273,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 24,
     marginBottom: 32,
-    gap: 12,
+    gap: 8,
   },
   sectionHeader: {
     paddingHorizontal: 24,

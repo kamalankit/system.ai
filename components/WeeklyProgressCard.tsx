@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { Trophy, TrendingUp, Target, Brain, Heart, Users, DollarSign, Star } from 'lucide-react-native';
+import { Trophy, TrendingUp, Target } from 'lucide-react-native';
 import { userData } from '@/data/mockData';
 
 interface WeeklyProgressCardProps {
@@ -11,7 +11,6 @@ interface WeeklyProgressCardProps {
 export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCardProps) {
   const [weeklyRanking, setWeeklyRanking] = useState('');
   const [domainFocus, setDomainFocus] = useState('');
-  const [weeklyChallenge, setWeeklyChallenge] = useState('');
   const [progressAnim] = useState(new Animated.Value(0));
   const [rankingAnim] = useState(new Animated.Value(0));
 
@@ -22,47 +21,34 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
   }, []);
 
   const calculateWeeklyStats = () => {
-    // Calculate weekly ranking (mock calculation)
     const completionRate = userData.stats.weeklyGoal > 0 ? (userData.stats.weeklyCompleted / userData.stats.weeklyGoal) * 100 : 0;
     
     if (completionRate >= 90) {
-      setWeeklyRanking('Top 5% of hunters this week!');
+      setWeeklyRanking('Top 5%');
     } else if (completionRate >= 75) {
-      setWeeklyRanking('Top 15% of hunters this week!');
+      setWeeklyRanking('Top 15%');
     } else if (completionRate >= 50) {
-      setWeeklyRanking('Top 35% of hunters this week!');
+      setWeeklyRanking('Top 35%');
     } else {
-      setWeeklyRanking('Keep pushing, Hunter!');
+      setWeeklyRanking('Keep going!');
     }
 
-    // Analyze domain performance
     const domainPerformance = userData.domains.map(domain => ({
       name: domain.name,
       progress: domain.progress,
-      id: domain.id,
     })).sort((a, b) => b.progress - a.progress);
 
     const strongest = domainPerformance[0];
     const weakest = domainPerformance[domainPerformance.length - 1];
     
-    setDomainFocus(`Strong in ${strongest.name}, boost ${weakest.name}`);
-
-    // Set weekly challenge
-    const challenges = [
-      'Complete 3 Physical quests this week',
-      'Maintain 5-day streak this week',
-      'Earn 500 XP in Mental domain',
-      'Complete all daily quests 3 days',
-      'Join a guild discussion',
-    ];
-    setWeeklyChallenge(challenges[Math.floor(Math.random() * challenges.length)]);
+    setDomainFocus(`Strong: ${strongest.name}`);
   };
 
   const animateProgress = () => {
     const progress = userData.stats.weeklyGoal > 0 ? userData.stats.weeklyCompleted / userData.stats.weeklyGoal : 0;
     Animated.timing(progressAnim, {
       toValue: progress,
-      duration: 1200,
+      duration: 1000,
       useNativeDriver: false,
     }).start();
   };
@@ -92,29 +78,16 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
     return '#FF6B6B';
   };
 
-  const getDomainIcon = (domainName: string) => {
-    const icons = {
-      Physical: Target,
-      Mental: Brain,
-      Emotional: Heart,
-      Social: Users,
-      Financial: DollarSign,
-      Spiritual: Star,
-    };
-    return icons[domainName as keyof typeof icons] || Target;
-  };
-
   const getWeeklyPerformance = () => {
-    // Mock weekly performance data (7 days)
-    return [0.8, 0.6, 0.9, 0.7, 0.85, 0.4, 0.75]; // Completion rates for each day
+    return [0.8, 0.6, 0.9, 0.7, 0.85, 0.4, 0.75];
   };
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.touchable}>
       <View style={[styles.container, style]}>
         <View style={styles.header}>
           <View style={[styles.iconContainer, { backgroundColor: getProgressColor() + '20' }]}>
-            <Trophy size={16} color={getProgressColor()} strokeWidth={1.5} />
+            <Trophy size={14} color={getProgressColor()} strokeWidth={1.5} />
           </View>
           <Animated.View style={[
             styles.rankingBadge,
@@ -123,12 +96,12 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
               transform: [{
                 scale: rankingAnim.interpolate({
                   inputRange: [0, 1],
-                  outputRange: [1, 1.05],
+                  outputRange: [1, 1.03],
                 })
               }]
             }
           ]}>
-            <TrendingUp size={12} color={getProgressColor()} strokeWidth={1.5} />
+            <TrendingUp size={10} color={getProgressColor()} strokeWidth={1.5} />
           </Animated.View>
         </View>
 
@@ -137,7 +110,6 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
           <Text style={[styles.value, { color: getProgressColor() }]}>
             {userData.stats.weeklyCompleted}/{userData.stats.weeklyGoal}
           </Text>
-          <Text style={styles.ranking}>{weeklyRanking}</Text>
         </View>
 
         <View style={styles.progressContainer}>
@@ -174,10 +146,10 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.domainFocus}>{domainFocus}</Text>
+          <Text style={styles.ranking} numberOfLines={1}>{weeklyRanking}</Text>
           <View style={styles.challengeContainer}>
-            <Target size={10} color="#4DABF7" strokeWidth={1.5} />
-            <Text style={styles.challengeText}>{weeklyChallenge}</Text>
+            <Target size={8} color="#4DABF7" strokeWidth={1.5} />
+            <Text style={styles.challengeText} numberOfLines={1}>{domainFocus}</Text>
           </View>
         </View>
       </View>
@@ -186,92 +158,88 @@ export default function WeeklyProgressCard({ onPress, style }: WeeklyProgressCar
 }
 
 const styles = StyleSheet.create({
-  container: {
+  touchable: {
     flex: 1,
+  },
+  container: {
     backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#333333',
-    minHeight: 120,
+    height: 85,
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   rankingBadge: {
-    borderRadius: 12,
-    padding: 6,
+    borderRadius: 8,
+    padding: 3,
   },
   content: {
     alignItems: 'center',
-    marginBottom: 12,
+    flex: 1,
+    justifyContent: 'center',
   },
   label: {
-    fontSize: 12,
-    color: '#A6A6A6',
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  ranking: {
     fontSize: 10,
     color: '#A6A6A6',
     fontWeight: '500',
-    textAlign: 'center',
+    marginBottom: 2,
+  },
+  value: {
+    fontSize: 20,
+    fontWeight: '700',
   },
   progressContainer: {
-    marginBottom: 12,
+    marginBottom: 6,
   },
   progressBar: {
-    height: 4,
+    height: 3,
     backgroundColor: '#333333',
-    borderRadius: 2,
+    borderRadius: 1.5,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 1.5,
   },
   weeklyChart: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 20,
-    marginBottom: 12,
-    paddingHorizontal: 4,
+    height: 12,
+    marginBottom: 6,
+    paddingHorizontal: 2,
   },
   chartBar: {
-    width: 3,
+    width: 2,
     height: '100%',
     backgroundColor: '#333333',
-    borderRadius: 1.5,
+    borderRadius: 1,
     justifyContent: 'flex-end',
   },
   chartBarFill: {
     width: '100%',
-    borderRadius: 1.5,
-    minHeight: 2,
+    borderRadius: 1,
+    minHeight: 1,
   },
   footer: {
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
   },
-  domainFocus: {
-    fontSize: 10,
+  ranking: {
+    fontSize: 9,
     color: '#FFB366',
     fontWeight: '600',
     textAlign: 'center',
@@ -279,12 +247,12 @@ const styles = StyleSheet.create({
   challengeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
   },
   challengeText: {
-    fontSize: 9,
+    fontSize: 8,
     color: '#4DABF7',
     fontWeight: '500',
-    textAlign: 'center',
+    flex: 1,
   },
 });

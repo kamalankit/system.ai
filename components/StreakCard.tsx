@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { Flame, Trophy, Calendar, Target } from 'lucide-react-native';
+import { Flame, Trophy } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { userData } from '@/data/mockData';
 
@@ -13,7 +13,6 @@ type StreakState = 'active' | 'at-risk' | 'broken';
 
 export default function StreakCard({ onPress, style }: StreakCardProps) {
   const [streakState, setStreakState] = useState<StreakState>('active');
-  const [bestStreak, setBestStreak] = useState(0);
   const [streakTier, setStreakTier] = useState('Bronze');
   const [nextMilestone, setNextMilestone] = useState('');
   const [glowAnim] = useState(new Animated.Value(0));
@@ -27,14 +26,6 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
 
   const loadStreakData = async () => {
     try {
-      const storedData = await AsyncStorage.getItem('streakData');
-      if (storedData) {
-        const { bestStreak: stored } = JSON.parse(storedData);
-        setBestStreak(stored || userData.stats.streak);
-      } else {
-        setBestStreak(userData.stats.streak);
-      }
-      
       // Determine streak tier
       const currentStreak = userData.stats.streak;
       if (currentStreak >= 30) setStreakTier('Gold');
@@ -43,13 +34,13 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
 
       // Calculate next milestone
       if (currentStreak < 7) {
-        setNextMilestone(`${7 - currentStreak} days to Weekly Warrior badge!`);
+        setNextMilestone(`${7 - currentStreak} to Weekly Warrior`);
       } else if (currentStreak < 14) {
-        setNextMilestone(`${14 - currentStreak} days to Silver streak!`);
+        setNextMilestone(`${14 - currentStreak} to Silver`);
       } else if (currentStreak < 30) {
-        setNextMilestone(`${30 - currentStreak} days to Gold streak!`);
+        setNextMilestone(`${30 - currentStreak} to Gold`);
       } else {
-        setNextMilestone('Legendary streak achieved!');
+        setNextMilestone('Legendary!');
       }
     } catch (error) {
       console.error('Error loading streak data:', error);
@@ -58,12 +49,11 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
 
   const determineStreakState = () => {
     const now = new Date();
-    const lastActivity = new Date(); // In real app, get from user's last activity
-    const hoursSinceActivity = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+    const hour = now.getHours();
     
     if (userData.stats.streak === 0) {
       setStreakState('broken');
-    } else if (hoursSinceActivity > 20) { // After 8 PM, streak at risk
+    } else if (hour > 20) { // After 8 PM, streak at risk
       setStreakState('at-risk');
     } else {
       setStreakState('active');
@@ -92,7 +82,7 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.05,
+            toValue: 1.03,
             duration: 1000,
             useNativeDriver: true,
           }),
@@ -115,18 +105,8 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
     }
   };
 
-  const getStreakMessage = () => {
-    switch (streakState) {
-      case 'active': return `${streakTier} Streak`;
-      case 'at-risk': return 'Streak at Risk!';
-      case 'broken': return 'Streak Broken';
-      default: return 'Streak';
-    }
-  };
-
   const handlePress = () => {
     if (streakState === 'broken') {
-      // Start new streak logic
       userData.stats.streak = 1;
       setStreakState('active');
     }
@@ -138,27 +118,21 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
     shadowColor: getStreakColor(),
     shadowOpacity: glowAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 0.3],
+      outputRange: [0, 0.2],
     }),
-    shadowRadius: glowAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 10],
-    }),
+    shadowRadius: 4,
     elevation: glowAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, 8],
+      outputRange: [0, 4],
     }),
   };
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.8}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.8} style={styles.touchable}>
       <Animated.View style={[styles.container, style, animatedStyle]}>
         <View style={styles.header}>
           <View style={[styles.iconContainer, { backgroundColor: getStreakColor() + '20' }]}>
-            <Flame size={16} color={getStreakColor()} strokeWidth={1.5} />
-          </View>
-          <View style={[styles.tierBadge, { backgroundColor: getStreakColor() + '20' }]}>
-            <Text style={[styles.tierText, { color: getStreakColor() }]}>{streakTier}</Text>
+            <Flame size={14} color={getStreakColor()} strokeWidth={1.5} />
           </View>
         </View>
 
@@ -167,21 +141,13 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
           <Text style={[styles.value, { color: getStreakColor() }]}>
             {userData.stats.streak}
           </Text>
-          <Text style={styles.message}>{getStreakMessage()}</Text>
         </View>
 
         <View style={styles.footer}>
-          {streakState === 'broken' ? (
-            <TouchableOpacity style={styles.actionButton}>
-              <Target size={12} color="#4DABF7" strokeWidth={1.5} />
-              <Text style={styles.actionText}>Start New Streak</Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.milestoneContainer}>
-              <Trophy size={12} color="#FFB366" strokeWidth={1.5} />
-              <Text style={styles.milestoneText}>{nextMilestone}</Text>
-            </View>
-          )}
+          <Trophy size={10} color="#FFB366" strokeWidth={1.5} />
+          <Text style={styles.milestoneText} numberOfLines={1}>
+            {nextMilestone}
+          </Text>
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -189,84 +155,53 @@ export default function StreakCard({ onPress, style }: StreakCardProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  touchable: {
     flex: 1,
+  },
+  container: {
     backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#333333',
-    minHeight: 120,
+    height: 85,
+    justifyContent: 'space-between',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    alignItems: 'flex-end',
   },
   iconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  tierBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  tierText: {
-    fontSize: 10,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
   content: {
     alignItems: 'center',
-    marginBottom: 12,
+    flex: 1,
+    justifyContent: 'center',
   },
   label: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#A6A6A6',
     fontWeight: '500',
-    marginBottom: 4,
-  },
-  value: {
-    fontSize: 24,
-    fontWeight: '700',
     marginBottom: 2,
   },
-  message: {
-    fontSize: 11,
-    color: '#A6A6A6',
-    fontWeight: '500',
+  value: {
+    fontSize: 20,
+    fontWeight: '700',
   },
   footer: {
-    alignItems: 'center',
-  },
-  actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4DABF7' + '20',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    gap: 4,
-  },
-  actionText: {
-    fontSize: 10,
-    color: '#4DABF7',
-    fontWeight: '600',
-  },
-  milestoneContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 3,
   },
   milestoneText: {
-    fontSize: 10,
+    fontSize: 9,
     color: '#FFB366',
     fontWeight: '500',
-    textAlign: 'center',
+    flex: 1,
   },
 });
