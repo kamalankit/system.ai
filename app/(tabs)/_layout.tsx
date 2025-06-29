@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Sword, Users, TrendingUp, User } from 'lucide-react-native';
+import { Chrome as Home, Sword, Users, TrendingUp, User, Target } from 'lucide-react-native';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -46,6 +46,15 @@ export default function TabLayout() {
           title: 'Quests',
           tabBarIcon: ({ size, color }) => (
             <Sword size={size} color={color} strokeWidth={1.5} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="battle-training"
+        options={{
+          title: 'Training',
+          tabBarIcon: ({ size, color }) => (
+            <Target size={size} color={color} strokeWidth={1.5} />
           ),
         }}
       />
