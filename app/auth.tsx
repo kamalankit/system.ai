@@ -412,7 +412,46 @@ export default function AuthScreen() {
   }, []);
 
   const AuthHub = () => (
-    // ... (keep the existing AuthHub implementation)
+    <View style={styles.hubContainer}>
+      <View style={styles.logoSection}>
+        <View style={styles.logoRing}>
+          <Text style={styles.logoText}>H</Text>
+        </View>
+        <Text style={styles.tagline}>Begin Your Evolution</Text>
+      </View>
+
+      <View style={styles.authActions}>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={() => navigateToMode('signup')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.primaryButtonText}>Create Account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() => navigateToMode('login')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.secondaryButtonText}>Sign In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.guestButton}
+          onPress={handleGuestMode}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.guestButtonText}>Continue as Guest</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          By continuing, you agree to our Terms & Privacy Policy
+        </Text>
+      </View>
+    </View>
   );
 
   return (
@@ -464,6 +503,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
+  },
+  keyboardContainer: {
+    flex: 1,
   },
   hubContainer: {
     flex: 1,
@@ -549,37 +591,27 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
+    paddingHorizontal: 32,
   },
   scrollContent: {
     flexGrow: 1,
     paddingBottom: 50,
   },
   formHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
     paddingTop: Platform.OS === 'android' ? 16 : 8,
-    paddingBottom: 32,
-    position: 'relative',
-    minHeight: 80,
+    paddingBottom: 40,
+    alignItems: 'center',
   },
   backButton: {
+    position: 'absolute',
+    left: 0,
+    top: Platform.OS === 'android' ? 16 : 8,
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: '#111111',
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'absolute',
-    left: 24,
-    top: Platform.OS === 'android' ? 16 : 8,
-    zIndex: 10,
-  },
-  headerTitleContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 80, // Space for back button
   },
   formTitle: {
     fontSize: 24,
@@ -589,12 +621,10 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    paddingHorizontal: 32,
-    justifyContent: 'center',
   },
   inputGroup: {
     gap: 16,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -637,14 +667,14 @@ const styles = StyleSheet.create({
     color: '#A6A6A6',
     textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 48,
+    marginBottom: 32,
   },
   submitButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
     minHeight: 56,
     justifyContent: 'center',
   },
