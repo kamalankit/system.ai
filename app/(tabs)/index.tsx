@@ -17,6 +17,7 @@ import {
   Bell,
   Trophy,
   Zap,
+  BookOpen,
 } from 'lucide-react-native';
 import { 
   Target as TargetIcon, 
@@ -183,19 +184,45 @@ export default function DashboardScreen() {
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
-          <TouchableOpacity
-            style={styles.primaryAction}
-            onPress={() => router.push('/(tabs)/quests')}
-          >
-            <Text style={styles.primaryActionText}>View Daily Quests</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.secondaryAction}
-            onPress={() => router.push('/journal')}
-          >
-            <Plus size={20} color="#A6A6A6" strokeWidth={1.5} />
-          </TouchableOpacity>
+          {/* Quest Actions Row */}
+          <View style={styles.questActionsRow}>
+            <TouchableOpacity
+              style={styles.primaryAction}
+              onPress={() => router.push('/(tabs)/quests')}
+              activeOpacity={0.8}
+            >
+              <Zap size={20} color="#000000" strokeWidth={1.5} />
+              <Text style={styles.primaryActionText}>View Daily Quests</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.addQuestButton}
+              onPress={() => router.push('/quest/create')}
+              activeOpacity={0.8}
+            >
+              <Plus size={20} color="#FFFFFF" strokeWidth={1.5} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Journal Actions Row */}
+          <View style={styles.journalActionsRow}>
+            <TouchableOpacity
+              style={styles.journalAction}
+              onPress={() => router.push('/journal')}
+              activeOpacity={0.8}
+            >
+              <BookOpen size={20} color="#FFFFFF" strokeWidth={1.5} />
+              <Text style={styles.journalActionText}>Shadow Work Journal</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.quickAddButton}
+              onPress={() => router.push('/journal')}
+              activeOpacity={0.8}
+            >
+              <Plus size={20} color="#A6A6A6" strokeWidth={1.5} />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -366,9 +393,13 @@ const styles = StyleSheet.create({
     color: '#4DABF7',
   },
   quickActions: {
-    flexDirection: 'row',
     paddingHorizontal: 24,
     paddingBottom: 32,
+    gap: 16,
+  },
+  questActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
   },
   primaryAction: {
     flex: 1,
@@ -376,16 +407,47 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 24,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    gap: 8,
+    minHeight: 56,
   },
   primaryActionText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#000000',
   },
-  secondaryAction: {
+  addQuestButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: '#4DABF7',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  journalActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  journalAction: {
+    flex: 1,
+    backgroundColor: '#9775FA',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    minHeight: 56,
+  },
+  journalActionText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  quickAddButton: {
     width: 56,
     height: 56,
     borderRadius: 16,
