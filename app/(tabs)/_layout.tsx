@@ -50,15 +50,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="weekly-goals"
-        options={{
-          title: 'Weekly Goals',
-          tabBarIcon: ({ size, color }) => (
-            <Calendar size={size} color={color} strokeWidth={1.5} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="battle-training"
         options={{
           title: 'Training',
