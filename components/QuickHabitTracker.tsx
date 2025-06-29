@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
-import { CheckCircle, Circle, Flame, Droplets, BookOpen, Heart, Users, DollarSign } from 'lucide-react-native';
+import { CircleCheck as CheckCircle, Circle, Flame, Droplets, BookOpen, Heart, Users, DollarSign } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { userData } from '@/data/mockData';
 
