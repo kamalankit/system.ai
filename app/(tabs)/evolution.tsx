@@ -138,7 +138,7 @@ export default function EvolutionScreen() {
 
         <TouchableOpacity
           style={styles.secondaryStatCard}
-          onPress={() => router.push('/(tabs)/quests')}
+          onPress={() => router.push('/(tabs)/weekly-goals')}
           activeOpacity={0.8}
         >
           <View style={styles.secondaryStatIconContainer}>
