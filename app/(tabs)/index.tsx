@@ -23,7 +23,7 @@ import DailyHardTruth from '@/components/DailyHardTruth';
 import QuickHabitTracker from '@/components/QuickHabitTracker';
 import FocusMode from '@/components/FocusMode';
 import { userData } from '@/data/mockData';
-import { enhancedUserData, getSuccessRateForPeriod, getDomainSuccessRate, getStreakData, getTrendDirection } from '@/data/enhancedMockData';
+import { enhancedUserData, getSuccessRateForPeriod, getStreakData, getTrendDirection } from '@/data/enhancedMockData';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -181,30 +181,6 @@ export default function DashboardScreen() {
                 Best: {bestStreak} days
               </Text>
             </View>
-          </View>
-        </View>
-
-        {/* Domain Success Breakdown */}
-        <View style={styles.domainSuccessSection}>
-          <Text style={styles.sectionTitle}>Domain Performance</Text>
-          <View style={styles.domainSuccessGrid}>
-            {domains.map((domain) => {
-              const successRate = getDomainSuccessRate(domain.id);
-              return (
-                <View key={domain.id} style={styles.domainSuccessCard}>
-                  <View style={[styles.domainSuccessIcon, { backgroundColor: domain.color + '20' }]}>
-                    <domain.icon size={16} color={domain.color} strokeWidth={1.5} />
-                  </View>
-                  <Text style={styles.domainSuccessName}>{domain.name}</Text>
-                  <Text style={[
-                    styles.domainSuccessRate,
-                    { color: getSuccessRateColor(successRate) }
-                  ]}>
-                    {successRate}%
-                  </Text>
-                </View>
-              );
-            })}
           </View>
         </View>
 
@@ -518,42 +494,6 @@ const styles = StyleSheet.create({
   bestStreakText: {
     fontSize: 14,
     color: '#A6A6A6',
-  },
-  domainSuccessSection: {
-    paddingHorizontal: 24,
-    marginBottom: 32,
-  },
-  domainSuccessGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  domainSuccessCard: {
-    width: '31%',
-    backgroundColor: '#111111',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#333333',
-  },
-  domainSuccessIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  domainSuccessName: {
-    fontSize: 12,
-    color: '#A6A6A6',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  domainSuccessRate: {
-    fontSize: 16,
-    fontWeight: '700',
   },
   statsContainer: {
     flexDirection: 'row',
