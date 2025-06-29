@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
   Platform,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -281,6 +282,11 @@ export default function DomainsAssessmentScreen() {
   };
 
   const handleNext = () => {
+    if (!answers[currentQuestion.id]) {
+      Alert.alert('Please select an answer', 'You need to rate this question before continuing.');
+      return;
+    }
+
     if (currentQuestionIndex < allQuestions.length - 1) {
       // Animate transition
       Animated.timing(fadeAnim, {
@@ -297,10 +303,17 @@ export default function DomainsAssessmentScreen() {
       });
     } else {
       // Complete assessment and navigate to results
-      router.push({
-        pathname: '/assessment/results',
-        params: { answers: JSON.stringify(answers) }
-      });
+      try {
+        const answersString = JSON.stringify(answers);
+        console.log('Navigating to results with answers:', answersString);
+        router.push({
+          pathname: '/assessment/results',
+          params: { answers: answersString }
+        });
+      } catch (error) {
+        console.error('Error stringifying answers:', error);
+        Alert.alert('Error', 'Failed to save assessment results. Please try again.');
+      }
     }
   };
 
@@ -321,6 +334,17 @@ export default function DomainsAssessmentScreen() {
     }
   };
 
+  const handleExit = () => {
+    Alert.alert(
+      'Exit Assessment',
+      'Are you sure you want to exit? Your progress will be lost.',
+      [
+        { text: 'Continue Assessment', style: 'cancel' },
+        { text: 'Exit', style: 'destructive', onPress: () => router.replace('/(tabs)') }
+      ]
+    );
+  };
+
   const Icon = currentDomain?.icon || Target;
 
   return (
@@ -328,11 +352,9 @@ export default function DomainsAssessmentScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          {currentQuestionIndex > 0 && (
-            <TouchableOpacity onPress={handlePrevious} style={styles.backButton}>
-              <ChevronLeft size={24} color="#FFFFFF" strokeWidth={1.5} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity onPress={currentQuestionIndex > 0 ? handlePrevious : handleExit} style={styles.backButton}>
+            <ChevronLeft size={24} color="#FFFFFF" strokeWidth={1.5} />
+          </TouchableOpacity>
           <Text style={styles.progressText}>
             {currentQuestionIndex + 1} of {allQuestions.length}
           </Text>
