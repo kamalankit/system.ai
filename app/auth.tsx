@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -30,14 +30,39 @@ export default function AuthScreen() {
   const confirmPasswordRef = useRef<TextInput>(null);
   const nameRef = useRef<TextInput>(null);
 
-  const handleAuth = () => {
+  // Memoized callbacks to prevent re-renders
+  const handleEmailChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, email: text }));
+  }, []);
+
+  const handlePasswordChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, password: text }));
+  }, []);
+
+  const handleConfirmPasswordChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, confirmPassword: text }));
+  }, []);
+
+  const handleNameChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, name: text }));
+  }, []);
+
+  const togglePasswordVisibility = useCallback(() => {
+    setShowPassword(prev => !prev);
+  }, []);
+
+  const handleAuth = useCallback(() => {
     // Simulate authentication
     router.replace('/assessment');
-  };
+  }, [router]);
 
-  const handleGuestMode = () => {
+  const handleGuestMode = useCallback(() => {
     router.replace('/(tabs)');
-  };
+  }, [router]);
+
+  const navigateToMode = useCallback((newMode: 'hub' | 'login' | 'signup' | 'forgot') => {
+    setMode(newMode);
+  }, []);
 
   const AuthHub = () => (
     <View style={styles.hubContainer}>
@@ -51,7 +76,7 @@ export default function AuthScreen() {
       <View style={styles.authActions}>
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => setMode('signup')}
+          onPress={() => navigateToMode('signup')}
           activeOpacity={0.8}
         >
           <Text style={styles.primaryButtonText}>Create Account</Text>
@@ -59,7 +84,7 @@ export default function AuthScreen() {
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => setMode('login')}
+          onPress={() => navigateToMode('login')}
           activeOpacity={0.8}
         >
           <Text style={styles.secondaryButtonText}>Sign In</Text>
@@ -86,18 +111,20 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView 
         style={styles.formContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
+        keyboardDismissMode="interactive"
+        nestedScrollEnabled={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => setMode('hub')}
+            onPress={() => navigateToMode('hub')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -115,7 +142,7 @@ export default function AuthScreen() {
                 placeholder="Email"
                 placeholderTextColor="#666666"
                 value={formData.email}
-                onChangeText={(text) => setFormData({ ...formData, email: text })}
+                onChangeText={handleEmailChange}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -123,6 +150,7 @@ export default function AuthScreen() {
                 textContentType="emailAddress"
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
 
@@ -134,7 +162,7 @@ export default function AuthScreen() {
                 placeholder="Password"
                 placeholderTextColor="#666666"
                 value={formData.password}
-                onChangeText={(text) => setFormData({ ...formData, password: text })}
+                onChangeText={handlePasswordChange}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -142,9 +170,10 @@ export default function AuthScreen() {
                 textContentType="password"
                 returnKeyType="done"
                 onSubmitEditing={handleAuth}
+                blurOnSubmit={false}
               />
               <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
+                onPress={togglePasswordVisibility}
                 style={styles.eyeButton}
                 activeOpacity={0.7}
               >
@@ -159,7 +188,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.forgotButton}
-            onPress={() => setMode('forgot')}
+            onPress={() => navigateToMode('forgot')}
             activeOpacity={0.7}
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>
@@ -175,7 +204,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => setMode('signup')}
+            onPress={() => navigateToMode('signup')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>
@@ -191,18 +220,20 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView 
         style={styles.formContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
+        keyboardDismissMode="interactive"
+        nestedScrollEnabled={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => setMode('hub')}
+            onPress={() => navigateToMode('hub')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -219,13 +250,14 @@ export default function AuthScreen() {
                 placeholder="Full Name"
                 placeholderTextColor="#666666"
                 value={formData.name}
-                onChangeText={(text) => setFormData({ ...formData, name: text })}
+                onChangeText={handleNameChange}
                 autoCapitalize="words"
                 autoCorrect={false}
                 autoComplete="name"
                 textContentType="name"
                 returnKeyType="next"
                 onSubmitEditing={() => emailRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
 
@@ -237,7 +269,7 @@ export default function AuthScreen() {
                 placeholder="Email"
                 placeholderTextColor="#666666"
                 value={formData.email}
-                onChangeText={(text) => setFormData({ ...formData, email: text })}
+                onChangeText={handleEmailChange}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -245,6 +277,7 @@ export default function AuthScreen() {
                 textContentType="emailAddress"
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
+                blurOnSubmit={false}
               />
             </View>
 
@@ -256,7 +289,7 @@ export default function AuthScreen() {
                 placeholder="Password"
                 placeholderTextColor="#666666"
                 value={formData.password}
-                onChangeText={(text) => setFormData({ ...formData, password: text })}
+                onChangeText={handlePasswordChange}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -264,9 +297,10 @@ export default function AuthScreen() {
                 textContentType="newPassword"
                 returnKeyType="next"
                 onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                blurOnSubmit={false}
               />
               <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
+                onPress={togglePasswordVisibility}
                 style={styles.eyeButton}
                 activeOpacity={0.7}
               >
@@ -286,7 +320,7 @@ export default function AuthScreen() {
                 placeholder="Confirm Password"
                 placeholderTextColor="#666666"
                 value={formData.confirmPassword}
-                onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
+                onChangeText={handleConfirmPasswordChange}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -294,6 +328,7 @@ export default function AuthScreen() {
                 textContentType="newPassword"
                 returnKeyType="done"
                 onSubmitEditing={handleAuth}
+                blurOnSubmit={false}
               />
             </View>
           </View>
@@ -308,7 +343,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => setMode('login')}
+            onPress={() => navigateToMode('login')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>
@@ -324,18 +359,20 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView 
         style={styles.formContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
+        keyboardDismissMode="interactive"
+        nestedScrollEnabled={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => setMode('login')}
+            onPress={() => navigateToMode('login')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -356,7 +393,7 @@ export default function AuthScreen() {
               placeholder="Email"
               placeholderTextColor="#666666"
               value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
+              onChangeText={handleEmailChange}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
@@ -366,6 +403,7 @@ export default function AuthScreen() {
               onSubmitEditing={() => {
                 // Handle send reset link
               }}
+              blurOnSubmit={false}
             />
           </View>
 
@@ -381,7 +419,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => setMode('login')}
+            onPress={() => navigateToMode('login')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>Remember your password? Sign In</Text>
