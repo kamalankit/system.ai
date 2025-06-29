@@ -18,6 +18,7 @@ import {
   Trophy,
   Zap,
   BookOpen,
+  Timer,
 } from 'lucide-react-native';
 import { 
   Target as TargetIcon, 
@@ -29,6 +30,9 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import DomainCard from '@/components/DomainCard';
+import DailyHardTruth from '@/components/DailyHardTruth';
+import FocusTimer from '@/components/FocusTimer';
+import QuickHabitTracker from '@/components/QuickHabitTracker';
 import { userData } from '@/data/mockData';
 
 export default function DashboardScreen() {
@@ -122,7 +126,13 @@ export default function DashboardScreen() {
               {userData.stats.weeklyCompleted}/{userData.stats.weeklyGoal}
             </Text>
           </View>
+
+          {/* Focus Timer Widget */}
+          <FocusTimer />
         </View>
+
+        {/* Daily Hard Truth */}
+        <DailyHardTruth />
 
         {/* Domains Grid */}
         <View style={styles.sectionHeader}>
@@ -181,6 +191,9 @@ export default function DashboardScreen() {
             <Text style={styles.activityXP}>+60 XP</Text>
           </View>
         </View>
+
+        {/* Quick Habit Tracker */}
+        <QuickHabitTracker />
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
