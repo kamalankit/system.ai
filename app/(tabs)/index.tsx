@@ -53,6 +53,10 @@ export default function DashboardScreen() {
     router.push('/(tabs)/profile');
   };
 
+  const handleNotificationsPress = () => {
+    router.push('/notifications');
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <ScrollView 
@@ -80,7 +84,11 @@ export default function DashboardScreen() {
           </View>
           
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={handleNotificationsPress}
+              activeOpacity={0.7}
+            >
               <Bell size={20} color="#A6A6A6" strokeWidth={1.5} />
               {notifications > 0 && (
                 <View style={styles.notificationBadge}>
@@ -91,6 +99,7 @@ export default function DashboardScreen() {
             <TouchableOpacity 
               style={styles.iconButton}
               onPress={() => router.push('/settings')}
+              activeOpacity={0.7}
             >
               <Settings size={20} color="#A6A6A6" strokeWidth={1.5} />
             </TouchableOpacity>
