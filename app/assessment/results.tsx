@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Target, Brain, Heart, Users, Star, DollarSign, Trophy, ChevronRight, Zap, AlertCircle } from 'lucide-react-native';
+import { Target, Brain, Heart, Users, Star, DollarSign, Trophy, ChevronRight, Zap, CircleAlert as AlertCircle } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
