@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TrendingUp, Calendar, Award, Target, Brain, Heart, Users, Star, Zap, ChartBar as BarChart3, ChartPie as PieChart } from 'lucide-react-native';
+import { TrendingUp, Calendar, Award, Target, Brain, Heart, Users, Star, Zap, ChartBar as BarChart3, ChartPie as PieChart, Flame, Trophy } from 'lucide-react-native';
 import ProgressRing from '@/components/ProgressRing';
 import { userData } from '@/data/mockData';
 
@@ -64,45 +64,83 @@ export default function EvolutionScreen() {
   );
 
   const StatsCards = () => (
-    <View style={styles.statsGrid}>
-      <View style={styles.statCard}>
-        <View style={styles.statCardHeader}>
-          <TrendingUp size={16} color="#51CF66" strokeWidth={1.5} />
-          <Text style={styles.statCardTitle}>Total XP</Text>
+    <View style={styles.statsSection}>
+      <Text style={styles.sectionTitle}>Your Evolution Stats</Text>
+      
+      {/* Primary Stats Row */}
+      <View style={styles.primaryStatsRow}>
+        <View style={styles.primaryStatCard}>
+          <View style={styles.primaryStatHeader}>
+            <View style={[styles.primaryStatIcon, { backgroundColor: '#51CF66' + '20' }]}>
+              <TrendingUp size={24} color="#51CF66" strokeWidth={1.5} />
+            </View>
+            <Text style={styles.primaryStatLabel}>Total XP</Text>
+          </View>
+          <Text style={styles.primaryStatValue}>
+            {userData.profile.totalXP.toLocaleString()}
+          </Text>
+          <Text style={styles.primaryStatChange}>+240 this week</Text>
         </View>
-        <Text style={styles.statCardValue}>
-          {userData.profile.totalXP.toLocaleString()}
-        </Text>
-        <Text style={styles.statCardChange}>+240 this week</Text>
+
+        <View style={styles.primaryStatCard}>
+          <View style={styles.primaryStatHeader}>
+            <View style={[styles.primaryStatIcon, { backgroundColor: '#FFB366' + '20' }]}>
+              <Award size={24} color="#FFB366" strokeWidth={1.5} />
+            </View>
+            <Text style={styles.primaryStatLabel}>Current Rank</Text>
+          </View>
+          <Text style={styles.primaryStatValue}>{userData.profile.rank}</Text>
+          <Text style={styles.primaryStatChange}>Level {userData.profile.level}</Text>
+        </View>
       </View>
 
-      <View style={styles.statCard}>
-        <View style={styles.statCardHeader}>
-          <Calendar size={16} color="#4DABF7" strokeWidth={1.5} />
-          <Text style={styles.statCardTitle}>Streak</Text>
+      {/* Secondary Stats Grid */}
+      <View style={styles.secondaryStatsGrid}>
+        <View style={styles.secondaryStatCard}>
+          <View style={styles.secondaryStatIconContainer}>
+            <Flame size={20} color="#FF6B6B" strokeWidth={1.5} />
+          </View>
+          <View style={styles.secondaryStatContent}>
+            <Text style={styles.secondaryStatValue}>{userData.stats.streak}</Text>
+            <Text style={styles.secondaryStatLabel}>Day Streak</Text>
+          </View>
         </View>
-        <Text style={styles.statCardValue}>{userData.stats.streak} days</Text>
-        <Text style={styles.statCardChange}>Personal best!</Text>
-      </View>
 
-      <View style={styles.statCard}>
-        <View style={styles.statCardHeader}>
-          <Award size={16} color="#FFB366" strokeWidth={1.5} />
-          <Text style={styles.statCardTitle}>Rank</Text>
+        <View style={styles.secondaryStatCard}>
+          <View style={styles.secondaryStatIconContainer}>
+            <Target size={20} color="#4DABF7" strokeWidth={1.5} />
+          </View>
+          <View style={styles.secondaryStatContent}>
+            <Text style={styles.secondaryStatValue}>
+              {userData.stats.todayCompleted}/{userData.stats.todayTotal}
+            </Text>
+            <Text style={styles.secondaryStatLabel}>Today's Quests</Text>
+          </View>
         </View>
-        <Text style={styles.statCardValue}>{userData.profile.rank}</Text>
-        <Text style={styles.statCardChange}>Level {userData.profile.level}</Text>
-      </View>
 
-      <View style={styles.statCard}>
-        <View style={styles.statCardHeader}>
-          <Target size={16} color="#FF6B6B" strokeWidth={1.5} />
-          <Text style={styles.statCardTitle}>Quests</Text>
+        <View style={styles.secondaryStatCard}>
+          <View style={styles.secondaryStatIconContainer}>
+            <Trophy size={20} color="#51CF66" strokeWidth={1.5} />
+          </View>
+          <View style={styles.secondaryStatContent}>
+            <Text style={styles.secondaryStatValue}>
+              {userData.stats.weeklyCompleted}/{userData.stats.weeklyGoal}
+            </Text>
+            <Text style={styles.secondaryStatLabel}>Weekly Goal</Text>
+          </View>
         </View>
-        <Text style={styles.statCardValue}>
-          {userData.domains.reduce((acc, domain) => acc + domain.quests, 0)}
-        </Text>
-        <Text style={styles.statCardChange}>Completed total</Text>
+
+        <View style={styles.secondaryStatCard}>
+          <View style={styles.secondaryStatIconContainer}>
+            <Calendar size={20} color="#9775FA" strokeWidth={1.5} />
+          </View>
+          <View style={styles.secondaryStatContent}>
+            <Text style={styles.secondaryStatValue}>
+              {userData.domains.reduce((acc, domain) => acc + domain.quests, 0)}
+            </Text>
+            <Text style={styles.secondaryStatLabel}>Total Quests</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -308,41 +346,95 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
+  statsSection: {
+    paddingHorizontal: 24,
     marginBottom: 32,
   },
-  statCard: {
-    width: (width - 48) / 2,
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 20,
+  },
+  primaryStatsRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
+  },
+  primaryStatCard: {
+    flex: 1,
     backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 16,
-    margin: 8,
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
     borderColor: '#333333',
   },
-  statCardHeader: {
+  primaryStatHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
-  statCardTitle: {
-    fontSize: 14,
+  primaryStatIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  primaryStatLabel: {
+    fontSize: 16,
     color: '#A6A6A6',
-    fontWeight: '500',
-    marginLeft: 8,
+    fontWeight: '600',
+    flex: 1,
   },
-  statCardValue: {
-    fontSize: 24,
+  primaryStatValue: {
+    fontSize: 28,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  statCardChange: {
-    fontSize: 12,
+  primaryStatChange: {
+    fontSize: 14,
     color: '#51CF66',
+    fontWeight: '500',
+  },
+  secondaryStatsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  secondaryStatCard: {
+    width: (width - 72) / 2,
+    backgroundColor: '#111111',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#333333',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  secondaryStatIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#161616',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  secondaryStatContent: {
+    flex: 1,
+  },
+  secondaryStatValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  secondaryStatLabel: {
+    fontSize: 12,
+    color: '#A6A6A6',
     fontWeight: '500',
   },
   chartContainer: {
@@ -383,12 +475,6 @@ const styles = StyleSheet.create({
   },
   achievementsContainer: {
     paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 16,
   },
   achievementCard: {
     flexDirection: 'row',
