@@ -26,7 +26,8 @@ import {
   Volume2, 
   Smartphone,
   Sun,
-  Monitor
+  Monitor,
+  ChevronLeft
 } from 'lucide-react-native';
 import { userData } from '@/data/mockData';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -288,6 +289,19 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+        >
+          <ChevronLeft size={24} color="#FFFFFF" strokeWidth={1.5} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile</Text>
+        <View style={styles.placeholder} />
+      </View>
+
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -295,7 +309,7 @@ export default function ProfileScreen() {
         }}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={styles.profileHeader}>
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
@@ -412,8 +426,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'android' ? 16 : 8,
+    paddingBottom: 24,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#111111',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  placeholder: {
+    width: 40,
+  },
+  profileHeader: {
+    paddingHorizontal: 24,
     paddingBottom: 32,
   },
   profileSection: {
