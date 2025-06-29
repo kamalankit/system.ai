@@ -41,12 +41,27 @@ export default function AssessmentResultsScreen() {
   const [results, setResults] = useState<AssessmentResults | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.8));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (answers) {
-      const parsedAnswers = JSON.parse(answers as string);
-      const calculatedResults = calculateResults(parsedAnswers);
+    // Simulate processing time and calculate results
+    const timer = setTimeout(() => {
+      let calculatedResults: AssessmentResults;
+      
+      if (answers) {
+        try {
+          const parsedAnswers = JSON.parse(answers as string);
+          calculatedResults = calculateResults(parsedAnswers);
+        } catch (error) {
+          console.error('Error parsing answers:', error);
+          calculatedResults = getDefaultResults();
+        }
+      } else {
+        calculatedResults = getDefaultResults();
+      }
+      
       setResults(calculatedResults);
+      setIsLoading(false);
       
       // Animate in
       Animated.parallel([
@@ -62,8 +77,29 @@ export default function AssessmentResultsScreen() {
           useNativeDriver: true,
         }),
       ]).start();
-    }
+    }, 2000); // 2 second delay for dramatic effect
+
+    return () => clearTimeout(timer);
   }, [answers]);
+
+  const getDefaultResults = (): AssessmentResults => {
+    // Provide default results if no answers are available
+    return {
+      overallRank: 'C-Class',
+      overallLevel: 'C',
+      totalScore: 65,
+      domains: [
+        { id: 'physical', name: 'Physical', icon: Target, color: '#FF6B6B', score: 70, rank: 'B-Class', level: 'B', description: 'Advanced level - strong performance' },
+        { id: 'mental', name: 'Mental', icon: Brain, color: '#4DABF7', score: 75, rank: 'B-Class', level: 'B', description: 'Advanced level - strong performance' },
+        { id: 'emotional', name: 'Emotional', icon: Heart, color: '#51CF66', score: 60, rank: 'C-Class', level: 'C', description: 'Intermediate level - good foundation' },
+        { id: 'social', name: 'Social', icon: Users, color: '#FFB366', score: 65, rank: 'C-Class', level: 'C', description: 'Intermediate level - good foundation' },
+        { id: 'financial', name: 'Financial', icon: DollarSign, color: '#9775FA', score: 55, rank: 'D-Class', level: 'D', description: 'Developing level - room for growth' },
+        { id: 'spiritual', name: 'Spiritual', icon: Star, color: '#FFC107', score: 68, rank: 'C-Class', level: 'C', description: 'Intermediate level - good foundation' },
+      ],
+      strengths: ['Mental', 'Physical'],
+      improvements: ['Financial', 'Emotional'],
+    };
+  };
 
   const calculateResults = (answers: { [key: number]: number }): AssessmentResults => {
     const domains = [
@@ -76,10 +112,10 @@ export default function AssessmentResultsScreen() {
     ];
 
     const domainResults: DomainResult[] = domains.map(domain => {
-      const domainAnswers = domain.questions.map(q => answers[q] || 0);
+      const domainAnswers = domain.questions.map(q => answers[q] || 3); // Default to 3 if no answer
       const totalScore = domainAnswers.reduce((sum, score) => sum + score, 0);
       const averageScore = totalScore / domain.questions.length;
-      const percentage = (averageScore / 5) * 100;
+      const percentage = Math.round((averageScore / 5) * 100);
       
       const { rank, level, description } = getRankInfo(percentage);
       
@@ -88,7 +124,7 @@ export default function AssessmentResultsScreen() {
         name: domain.name,
         icon: domain.icon,
         color: domain.color,
-        score: Math.round(percentage),
+        score: percentage,
         rank,
         level,
         description,
@@ -138,7 +174,7 @@ export default function AssessmentResultsScreen() {
     router.replace('/(tabs)');
   };
 
-  if (!results) {
+  if (isLoading || !results) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
         <View style={styles.loadingContainer}>
@@ -146,6 +182,7 @@ export default function AssessmentResultsScreen() {
             <Zap size={40} color="#FFFFFF" strokeWidth={1.5} />
           </Animated.View>
           <Text style={styles.loadingText}>Calculating your Hunter rank...</Text>
+          <Text style={styles.loadingSubtext}>Analyzing your responses across all domains</Text>
         </View>
       </SafeAreaView>
     );
@@ -285,9 +322,16 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  loadingSubtext: {
+    fontSize: 14,
     color: '#A6A6A6',
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: '400',
   },
   content: {
     flex: 1,
