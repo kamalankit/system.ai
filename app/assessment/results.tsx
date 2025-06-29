@@ -40,8 +40,8 @@ export default function AssessmentResultsScreen() {
   const router = useRouter();
   const { answers } = useLocalSearchParams();
   const [results, setResults] = useState<AssessmentResults | null>(null);
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.8));
+  const [fadeAnim] = useState(new Animated.Value(1)); // Start visible
+  const [scaleAnim] = useState(new Animated.Value(1)); // Start at normal scale
   const [isLoading, setIsLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -49,37 +49,19 @@ export default function AssessmentResultsScreen() {
   const [hasAnswers, setHasAnswers] = useState(false);
 
   useEffect(() => {
-    // Immediate initialization to prevent black screen
     console.log('AssessmentResults mounted, starting calculation...');
     
-    // Start calculation immediately without delay
-    calculateResults();
-    
-    // Fallback timer to prevent infinite loading
-    const fallbackTimer = setTimeout(() => {
-      if (isLoading) {
-        console.log('Fallback timer triggered - forcing results display');
-        setIsLoading(false);
-        if (!results) {
-          setResults(getDefaultResults());
-          setError('Calculation timed out. Showing sample results.');
-        }
-      }
-    }, 8000); // 8 second maximum loading time
-
-    return () => {
-      clearTimeout(fallbackTimer);
-    };
+    // Immediate calculation without delay to prevent black screen
+    calculateResultsImmediate();
   }, []);
 
-  const calculateResults = async () => {
+  const calculateResultsImmediate = async () => {
     try {
-      console.log('Starting assessment calculation...');
+      console.log('Starting immediate assessment calculation...');
       console.log('Received answers parameter:', answers);
       
       setIsLoading(true);
       setError(null);
-      setLoadingProgress(10);
       
       // Check if we have valid answers
       let parsedAnswers = {};
@@ -87,7 +69,6 @@ export default function AssessmentResultsScreen() {
       
       if (answers) {
         try {
-          // Handle both string and already parsed objects
           if (typeof answers === 'string') {
             parsedAnswers = JSON.parse(answers);
           } else if (typeof answers === 'object') {
@@ -106,13 +87,13 @@ export default function AssessmentResultsScreen() {
         setHasAnswers(false);
       }
 
-      // Faster progress updates for mobile
+      // Fast progress simulation for better UX
       const progressSteps = [
-        { progress: 25, message: 'Processing responses...', delay: 200 },
-        { progress: 50, message: 'Calculating scores...', delay: 300 },
-        { progress: 75, message: 'Determining rank...', delay: 300 },
-        { progress: 90, message: 'Finalizing...', delay: 200 },
-        { progress: 100, message: 'Complete!', delay: 100 }
+        { progress: 20, message: 'Processing responses...', delay: 100 },
+        { progress: 40, message: 'Calculating scores...', delay: 150 },
+        { progress: 60, message: 'Determining rank...', delay: 150 },
+        { progress: 80, message: 'Finalizing results...', delay: 100 },
+        { progress: 100, message: 'Complete!', delay: 50 }
       ];
 
       for (const step of progressSteps) {
@@ -136,42 +117,12 @@ export default function AssessmentResultsScreen() {
       console.log('Setting results:', calculatedResults);
       setResults(calculatedResults);
       setIsLoading(false);
-      
-      // Animate in results
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 80,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
 
     } catch (error) {
       console.error('Error in calculateResults:', error);
       setError('Failed to calculate results. Showing default assessment.');
       setResults(getDefaultResults());
       setIsLoading(false);
-      
-      // Still animate in even with error
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 80,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
     }
   };
 
@@ -286,18 +237,18 @@ export default function AssessmentResultsScreen() {
     router.replace('/(tabs)');
   };
 
-  // Loading state optimized for mobile
+  // Enhanced loading state with better visibility
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView style={styles.loadingContainer} edges={['top', 'left', 'right']}>
+        <View style={styles.loadingContent}>
           <Animated.View style={[styles.loadingIcon, { transform: [{ scale: scaleAnim }] }]}>
-            <Zap size={40} color="#FFFFFF" strokeWidth={1.5} />
+            <Zap size={48} color="#4DABF7" strokeWidth={2} />
           </Animated.View>
-          <Text style={styles.loadingText}>Calculating your Hunter rank...</Text>
+          <Text style={styles.loadingTitle}>Calculating your Hunter rank...</Text>
           <Text style={styles.loadingSubtext}>{loadingMessage}</Text>
           
-          {/* Progress Bar */}
+          {/* Enhanced Progress Bar */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
               <View 
@@ -310,14 +261,14 @@ export default function AssessmentResultsScreen() {
             <Text style={styles.progressText}>{loadingProgress}%</Text>
           </View>
 
-          {/* Skip button appears after 3 seconds */}
-          {loadingProgress > 60 && (
+          {/* Emergency Skip Button */}
+          {loadingProgress > 50 && (
             <TouchableOpacity 
-              style={styles.skipButton}
+              style={styles.emergencySkipButton}
               onPress={handleSkipToApp}
               activeOpacity={0.8}
             >
-              <Text style={styles.skipButtonText}>Skip to Dashboard</Text>
+              <Text style={styles.emergencySkipText}>Skip to Dashboard</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -325,14 +276,14 @@ export default function AssessmentResultsScreen() {
     );
   }
 
-  // Results display
+  // Main results display with enhanced visibility
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-        {/* Error Banner for incomplete data */}
+      <View style={styles.content}>
+        {/* Error Banner */}
         {error && (
           <View style={styles.errorBanner}>
-            <AlertCircle size={16} color="#FFB366" strokeWidth={1.5} />
+            <AlertCircle size={18} color="#FFB366" strokeWidth={2} />
             <Text style={styles.errorBannerText}>{error}</Text>
           </View>
         )}
@@ -340,11 +291,12 @@ export default function AssessmentResultsScreen() {
         <ScrollView 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          style={styles.scrollView}
         >
-          {/* Header */}
+          {/* Header Section */}
           <View style={styles.header}>
             <View style={styles.celebrationIcon}>
-              <Trophy size={40} color="#FFD700" strokeWidth={1.5} />
+              <Trophy size={48} color="#FFD700" strokeWidth={2} />
             </View>
             <Text style={styles.congratsText}>Assessment Complete!</Text>
             <Text style={styles.rankAnnouncement}>
@@ -359,7 +311,7 @@ export default function AssessmentResultsScreen() {
           <View style={styles.overallCard}>
             <View style={styles.overallHeader}>
               <Text style={styles.overallTitle}>Your Hunter Rank</Text>
-              <View style={[styles.rankBadge, { backgroundColor: getRankColor(results?.overallRank || 'C-Class') + '20' }]}>
+              <View style={[styles.rankBadge, { backgroundColor: getRankColor(results?.overallRank || 'C-Class') + '30' }]}>
                 <Text style={[styles.rankBadgeText, { color: getRankColor(results?.overallRank || 'C-Class') }]}>
                   {results?.overallLevel || 'C'}
                 </Text>
@@ -379,8 +331,8 @@ export default function AssessmentResultsScreen() {
                   const Icon = domain.icon;
                   return (
                     <View key={domain.id} style={styles.domainCard}>
-                      <View style={[styles.domainIcon, { backgroundColor: domain.color + '20' }]}>
-                        <Icon size={24} color={domain.color} strokeWidth={1.5} />
+                      <View style={[styles.domainIcon, { backgroundColor: domain.color + '25' }]}>
+                        <Icon size={28} color={domain.color} strokeWidth={2} />
                       </View>
                       <Text style={styles.domainName}>{domain.name}</Text>
                       <View style={styles.domainScore}>
@@ -402,7 +354,7 @@ export default function AssessmentResultsScreen() {
             </View>
           )}
 
-          {/* Insights */}
+          {/* Insights Section */}
           {results && (
             <View style={styles.insightsSection}>
               <Text style={styles.sectionTitle}>Your Evolution Path</Text>
@@ -441,7 +393,7 @@ export default function AssessmentResultsScreen() {
                 onPress={handleRetry}
                 activeOpacity={0.8}
               >
-                <RefreshCw size={16} color="#4DABF7" strokeWidth={1.5} />
+                <RefreshCw size={18} color="#4DABF7" strokeWidth={2} />
                 <Text style={styles.retryButtonText}>Take Real Assessment</Text>
               </TouchableOpacity>
             )}
@@ -452,190 +404,217 @@ export default function AssessmentResultsScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.continueButtonText}>Begin Your Evolution</Text>
-              <ChevronRight size={20} color="#000000" strokeWidth={1.5} />
+              <ChevronRight size={22} color="#000000" strokeWidth={2} />
             </TouchableOpacity>
           </View>
         </ScrollView>
-      </Animated.View>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // Loading Screen Styles - Enhanced Visibility
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#000000', // Solid black background
+  },
+  loadingContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    backgroundColor: '#000000',
+  },
+  loadingIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#1a1a1a', // Darker background for contrast
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: '#4DABF7',
+  },
+  loadingTitle: {
+    fontSize: 22,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  loadingSubtext: {
+    fontSize: 16,
+    color: '#B0B0B0', // Lighter gray for better visibility
+    textAlign: 'center',
+    fontWeight: '500',
+    marginBottom: 40,
+  },
+  progressContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  progressBar: {
+    width: '100%',
+    height: 8,
+    backgroundColor: '#2a2a2a', // Darker background
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#404040',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#4DABF7',
+    borderRadius: 4,
+  },
+  progressText: {
+    fontSize: 16,
+    color: '#4DABF7',
+    fontWeight: '700',
+  },
+  emergencySkipButton: {
+    backgroundColor: '#2a2a2a',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderWidth: 1,
+    borderColor: '#4DABF7',
+  },
+  emergencySkipText: {
+    fontSize: 16,
+    color: '#4DABF7',
+    fontWeight: '600',
+  },
+
+  // Main Screen Styles - Enhanced Visibility
   container: {
     flex: 1,
+    backgroundColor: '#000000', // Solid black background
+  },
+  content: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  scrollContent: {
+    paddingBottom: 60,
     backgroundColor: '#000000',
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFB366' + '20',
+    backgroundColor: '#FFB366' + '25',
     borderRadius: 12,
-    padding: 12,
+    padding: 16,
     marginHorizontal: 24,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#FFB366' + '40',
+    borderColor: '#FFB366',
   },
   errorBannerText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#FFB366',
-    fontWeight: '500',
-    marginLeft: 8,
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  loadingIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#111111',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#333333',
-  },
-  loadingText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-    textAlign: 'center',
     fontWeight: '600',
-    marginBottom: 8,
-  },
-  loadingSubtext: {
-    fontSize: 14,
-    color: '#A6A6A6',
-    textAlign: 'center',
-    fontWeight: '400',
-    marginBottom: 32,
-  },
-  progressContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  progressBar: {
-    width: '100%',
-    height: 6,
-    backgroundColor: '#333333',
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginBottom: 8,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4DABF7',
-    borderRadius: 3,
-  },
-  progressText: {
-    fontSize: 14,
-    color: '#4DABF7',
-    fontWeight: '600',
-  },
-  skipButton: {
-    backgroundColor: '#333333',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderWidth: 1,
-    borderColor: '#666666',
-  },
-  skipButtonText: {
-    fontSize: 14,
-    color: '#A6A6A6',
-    fontWeight: '500',
-  },
-  content: {
+    marginLeft: 12,
     flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 50,
+    lineHeight: 20,
   },
   header: {
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'android' ? 16 : 8,
-    paddingBottom: 32,
+    paddingTop: Platform.OS === 'android' ? 24 : 16,
+    paddingBottom: 40,
+    backgroundColor: '#000000',
   },
   celebrationIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FFD700' + '20',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#FFD700' + '25',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 28,
+    borderWidth: 2,
+    borderColor: '#FFD700',
   },
   congratsText: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   rankAnnouncement: {
-    fontSize: 20,
-    color: '#A6A6A6',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  rankText: {
-    fontWeight: '700',
     fontSize: 22,
-  },
-  scoreText: {
-    fontSize: 16,
-    color: '#666666',
+    color: '#CCCCCC', // Lighter gray for better visibility
+    textAlign: 'center',
+    marginBottom: 12,
     fontWeight: '500',
   },
+  rankText: {
+    fontWeight: '800',
+    fontSize: 24,
+  },
+  scoreText: {
+    fontSize: 18,
+    color: '#999999', // Lighter gray
+    fontWeight: '600',
+  },
   overallCard: {
-    backgroundColor: '#111111',
+    backgroundColor: '#1a1a1a', // Darker background for contrast
     borderRadius: 20,
-    padding: 24,
+    padding: 28,
     marginHorizontal: 24,
-    marginBottom: 32,
+    marginBottom: 36,
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#404040', // Visible border
   },
   overallHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   overallTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
     color: '#FFFFFF',
   },
   rankBadge: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   rankBadgeText: {
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
   },
   rankDescription: {
-    fontSize: 16,
-    color: '#A6A6A6',
-    lineHeight: 24,
+    fontSize: 17,
+    color: '#CCCCCC', // Lighter for better visibility
+    lineHeight: 26,
+    fontWeight: '500',
   },
   domainsSection: {
-    marginBottom: 32,
+    marginBottom: 36,
     paddingHorizontal: 24,
+    backgroundColor: '#000000',
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   domainsGrid: {
     flexDirection: 'row',
@@ -645,115 +624,125 @@ const styles = StyleSheet.create({
   },
   domainCard: {
     width: (width - 80) / 2,
-    backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: '#1a1a1a', // Darker background
+    borderRadius: 18,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#404040', // Visible border
     alignItems: 'center',
   },
   domainIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   domainName: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 12,
     textAlign: 'center',
   },
   domainScore: {
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   domainScoreText: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 24,
+    fontWeight: '800',
     color: '#FFFFFF',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   domainRank: {
-    fontSize: 12,
-    color: '#A6A6A6',
-    fontWeight: '500',
+    fontSize: 13,
+    color: '#AAAAAA', // Lighter gray
+    fontWeight: '600',
   },
   progressBarSmall: {
     width: '100%',
-    height: 4,
-    backgroundColor: '#333333',
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 3,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#404040',
   },
   progressFillSmall: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   insightsSection: {
-    marginBottom: 32,
+    marginBottom: 36,
     paddingHorizontal: 24,
+    backgroundColor: '#000000',
   },
   insightCard: {
-    backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: '#1a1a1a', // Darker background
+    borderRadius: 18,
+    padding: 24,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#404040', // Visible border
   },
   insightTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   insightText: {
-    fontSize: 14,
-    color: '#A6A6A6',
-    lineHeight: 22,
+    fontSize: 16,
+    color: '#CCCCCC', // Lighter for better visibility
+    lineHeight: 24,
+    fontWeight: '500',
   },
   highlightText: {
     color: '#4DABF7',
-    fontWeight: '600',
+    fontWeight: '700',
   },
   actionButtons: {
     paddingHorizontal: 24,
-    gap: 16,
+    gap: 20,
+    paddingBottom: 40,
+    backgroundColor: '#000000',
   },
   retryButton: {
     backgroundColor: 'transparent',
     borderRadius: 16,
-    paddingVertical: 16,
+    paddingVertical: 18,
     paddingHorizontal: 32,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#4DABF7',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   retryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: '#4DABF7',
   },
   continueButton: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 18,
+    paddingVertical: 20,
     paddingHorizontal: 32,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
   },
   continueButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 19,
+    fontWeight: '800',
     color: '#000000',
   },
 });
