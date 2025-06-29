@@ -600,7 +600,9 @@ const styles = StyleSheet.create({
   formHeader: {
     paddingTop: Platform.OS === 'android' ? 16 : 8,
     paddingBottom: 40,
+    position: 'relative',
     alignItems: 'center',
+    minHeight: 80,
   },
   backButton: {
     position: 'absolute',
@@ -612,6 +614,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#111111',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1,
+  },
+  headerTitleContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 60, // Add padding to prevent overlap with back button
+    marginTop: Platform.OS === 'android' ? 16 : 8,
   },
   formTitle: {
     fontSize: 24,
@@ -674,7 +684,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32, // Increased spacing before switch button
     minHeight: 56,
     justifyContent: 'center',
   },
