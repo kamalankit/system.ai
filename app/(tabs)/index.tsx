@@ -40,7 +40,7 @@ export default function DashboardScreen() {
   ];
 
   const handleProfilePress = () => {
-    router.push('/(tabs)/profile');
+    router.push('/profile');
   };
 
   const handleNotificationsPress = () => {
