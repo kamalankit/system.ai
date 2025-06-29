@@ -97,12 +97,32 @@ export default function EditProfileScreen() {
 
   const handleChangeAvatar = () => {
     showAlert({
-      title: 'Change Avatar',
-      message: 'Choose how you want to update your avatar',
+      title: 'Update Avatar',
+      message: 'Choose how you would like to update your profile picture',
       type: 'info',
       buttons: [
-        { text: 'Camera', onPress: () => console.log('Open camera') },
-        { text: 'Photo Library', onPress: () => console.log('Open photo library') },
+        { 
+          text: 'Take Photo', 
+          onPress: () => {
+            console.log('Open camera');
+            showAlert({
+              title: 'Camera Feature',
+              message: 'Camera functionality will be available in the next update.',
+              type: 'info',
+            });
+          }
+        },
+        { 
+          text: 'Choose from Library', 
+          onPress: () => {
+            console.log('Open photo library');
+            showAlert({
+              title: 'Photo Library',
+              message: 'Photo library access will be available in the next update.',
+              type: 'info',
+            });
+          }
+        },
         { text: 'Cancel', style: 'cancel' },
       ],
     });

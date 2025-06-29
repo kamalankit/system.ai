@@ -137,6 +137,11 @@ export default function CustomAlert({
     }
   };
 
+  // Calculate optimal button layout
+  const isThreeButtons = buttons.length === 3;
+  const isTwoButtons = buttons.length === 2;
+  const isOneButton = buttons.length === 1;
+
   return (
     <Modal
       visible={visible}
@@ -191,28 +196,57 @@ export default function CustomAlert({
             </View>
 
             {/* Buttons */}
-            <View style={styles.buttonsContainer}>
-              {buttons.map((button, index) => {
-                const buttonStyle = getButtonStyle(button.style || 'default');
-                const textStyle = getButtonTextStyle(button.style || 'default');
-                
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    style={[
-                      styles.button,
-                      buttonStyle,
-                      buttons.length === 1 && styles.singleButton,
-                    ]}
-                    onPress={() => handleButtonPress(button)}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[styles.buttonText, textStyle]}>
-                      {button.text}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={[
+              styles.buttonsContainer,
+              isThreeButtons && styles.buttonsContainerVertical,
+            ]}>
+              {isThreeButtons ? (
+                // Vertical layout for 3 buttons
+                buttons.map((button, index) => {
+                  const buttonStyle = getButtonStyle(button.style || 'default');
+                  const textStyle = getButtonTextStyle(button.style || 'default');
+                  
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.button,
+                        styles.buttonVertical,
+                        buttonStyle,
+                      ]}
+                      onPress={() => handleButtonPress(button)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.buttonText, textStyle]}>
+                        {button.text}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              ) : (
+                // Horizontal layout for 1-2 buttons
+                buttons.map((button, index) => {
+                  const buttonStyle = getButtonStyle(button.style || 'default');
+                  const textStyle = getButtonTextStyle(button.style || 'default');
+                  
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.button,
+                        buttonStyle,
+                        isOneButton && styles.singleButton,
+                      ]}
+                      onPress={() => handleButtonPress(button)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[styles.buttonText, textStyle]}>
+                        {button.text}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </View>
           </Animated.View>
         </BlurView>
@@ -248,7 +282,7 @@ const styles = StyleSheet.create({
     padding: 24,
     marginHorizontal: 32,
     maxWidth: width - 64,
-    minWidth: 280,
+    minWidth: 300,
     borderWidth: 1,
     borderColor: '#333333',
     shadowColor: '#000000',
@@ -306,6 +340,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
+  buttonsContainerVertical: {
+    flexDirection: 'column',
+    gap: 12,
+  },
   button: {
     flex: 1,
     borderRadius: 16,
@@ -315,6 +353,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 52,
   },
+  buttonVertical: {
+    flex: 0,
+    width: '100%',
+  },
   singleButton: {
     flex: 1,
   },
@@ -322,5 +364,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+    lineHeight: 20,
   },
 });
