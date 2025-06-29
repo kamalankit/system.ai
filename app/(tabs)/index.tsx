@@ -11,8 +11,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   User,
   Settings,
-  Flame,
-  Target,
   Bell,
   Trophy,
   BookOpen,
@@ -30,6 +28,9 @@ import DomainCard from '@/components/DomainCard';
 import DailyHardTruth from '@/components/DailyHardTruth';
 import QuickHabitTracker from '@/components/QuickHabitTracker';
 import FocusMode from '@/components/FocusMode';
+import StreakCard from '@/components/StreakCard';
+import DailyProgressCard from '@/components/DailyProgressCard';
+import WeeklyProgressCard from '@/components/WeeklyProgressCard';
 import { userData } from '@/data/mockData';
 
 export default function DashboardScreen() {
@@ -52,6 +53,20 @@ export default function DashboardScreen() {
 
   const handleNotificationsPress = () => {
     router.push('/notifications');
+  };
+
+  const handleStreakPress = () => {
+    // Navigate to streak details or show streak history modal
+    console.log('Show streak details');
+  };
+
+  const handleDailyProgressPress = () => {
+    router.push('/(tabs)/quests');
+  };
+
+  const handleWeeklyProgressPress = () => {
+    // Navigate to weekly breakdown or analytics
+    router.push('/(tabs)/evolution');
   };
 
   return (
@@ -105,33 +120,9 @@ export default function DashboardScreen() {
 
         {/* Quick Stats - Only 3 Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Flame size={16} color="#FF6B6B" strokeWidth={1.5} />
-            </View>
-            <Text style={styles.statLabel}>Streak</Text>
-            <Text style={styles.statValue}>{userData.stats.streak}</Text>
-          </View>
-          
-          <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Target size={16} color="#4DABF7" strokeWidth={1.5} />
-            </View>
-            <Text style={styles.statLabel}>Today</Text>
-            <Text style={styles.statValue}>
-              {userData.stats.todayCompleted}/{userData.stats.todayTotal}
-            </Text>
-          </View>
-          
-          <View style={styles.statCard}>
-            <View style={styles.statIcon}>
-              <Trophy size={16} color="#51CF66" strokeWidth={1.5} />
-            </View>
-            <Text style={styles.statLabel}>Week</Text>
-            <Text style={styles.statValue}>
-              {userData.stats.weeklyCompleted}/{userData.stats.weeklyGoal}
-            </Text>
-          </View>
+          <StreakCard onPress={handleStreakPress} />
+          <DailyProgressCard onPress={handleDailyProgressPress} />
+          <WeeklyProgressCard onPress={handleWeeklyProgressPress} />
         </View>
 
         {/* Daily Hard Truth */}
@@ -163,7 +154,7 @@ export default function DashboardScreen() {
         <View style={styles.activityContainer}>
           <View style={styles.activityItem}>
             <View style={styles.activityIcon}>
-              <Target size={16} color="#FF6B6B" strokeWidth={1.5} />
+              <TargetIcon size={16} color="#FF6B6B" strokeWidth={1.5} />
             </View>
             <View style={styles.activityContent}>
               <Text style={styles.activityTitle}>Workout Completed</Text>
@@ -283,29 +274,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 32,
     gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#111111',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#333333',
-    alignItems: 'center',
-  },
-  statIcon: {
-    marginBottom: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#A6A6A6',
-    fontWeight: '500',
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
   },
   sectionHeader: {
     paddingHorizontal: 24,
