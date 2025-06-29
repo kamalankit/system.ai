@@ -10,13 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  XCircle, 
-  Info, 
-  X 
-} from 'lucide-react-native';
+import { CircleCheck as CheckCircle, CircleAlert as AlertCircle, Circle as XCircle, Info, X } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
