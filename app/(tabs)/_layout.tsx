@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Sword, Users, TrendingUp, User, Target } from 'lucide-react-native';
+import { Chrome as Home, Sword, Users, TrendingUp, Target } from 'lucide-react-native';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -73,15 +73,6 @@ export default function TabLayout() {
           title: 'Evolution',
           tabBarIcon: ({ size, color }) => (
             <TrendingUp size={size} color={color} strokeWidth={1.5} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ size, color }) => (
-            <User size={size} color={color} strokeWidth={1.5} />
           ),
         }}
       />
