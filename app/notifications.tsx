@@ -24,9 +24,23 @@ interface Notification {
   actionable?: boolean;
   actionText?: string;
   actionRoute?: string;
-  icon?: any;
+  icon?: string;
   color?: string;
 }
+
+// Icon mapping for string-based icon references
+const iconMap = {
+  trophy: Trophy,
+  target: Target,
+  users: Users,
+  flame: Flame,
+  star: Star,
+  clock: Clock,
+  gift: Gift,
+  bell: Bell,
+  zap: Zap,
+  calendar: Calendar,
+};
 
 const mockNotifications: Notification[] = [
   {
@@ -39,7 +53,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'View Achievement',
     actionRoute: '/(tabs)/evolution',
-    icon: Trophy,
+    icon: 'trophy',
     color: '#FFB366',
   },
   {
@@ -52,7 +66,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'View Quests',
     actionRoute: '/(tabs)/quests',
-    icon: Target,
+    icon: 'target',
     color: '#4DABF7',
   },
   {
@@ -65,7 +79,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'Open Guild',
     actionRoute: '/(tabs)/guild',
-    icon: Users,
+    icon: 'users',
     color: '#51CF66',
   },
   {
@@ -76,7 +90,7 @@ const mockNotifications: Notification[] = [
     timestamp: Date.now() - 7200000, // 2 hours ago
     read: true,
     actionable: false,
-    icon: Flame,
+    icon: 'flame',
     color: '#FF6B6B',
   },
   {
@@ -89,7 +103,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'Start Timer',
     actionRoute: '/(tabs)/index',
-    icon: Clock,
+    icon: 'clock',
     color: '#9775FA',
   },
   {
@@ -102,7 +116,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'View Report',
     actionRoute: '/(tabs)/evolution',
-    icon: Star,
+    icon: 'star',
     color: '#FFC107',
   },
   {
@@ -115,7 +129,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'View Progress',
     actionRoute: '/domain/physical',
-    icon: Trophy,
+    icon: 'trophy',
     color: '#FFB366',
   },
   {
@@ -128,7 +142,7 @@ const mockNotifications: Notification[] = [
     actionable: true,
     actionText: 'Open Journal',
     actionRoute: '/journal',
-    icon: Gift,
+    icon: 'gift',
     color: '#9775FA',
   },
 ];
@@ -373,7 +387,7 @@ export default function NotificationsScreen() {
           </View>
         ) : (
           filteredNotifications.map((notification) => {
-            const Icon = notification.icon || Bell;
+            const IconComponent = notification.icon ? iconMap[notification.icon as keyof typeof iconMap] || Bell : Bell;
             
             return (
               <TouchableOpacity
@@ -391,7 +405,7 @@ export default function NotificationsScreen() {
                       styles.notificationIcon,
                       { backgroundColor: (notification.color || '#4DABF7') + '20' }
                     ]}>
-                      <Icon 
+                      <IconComponent 
                         size={20} 
                         color={notification.color || '#4DABF7'} 
                         strokeWidth={1.5} 
