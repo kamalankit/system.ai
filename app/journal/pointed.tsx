@@ -10,19 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { 
-  ChevronLeft, 
-  Plus, 
-  Minus, 
-  CheckCircle, 
-  XCircle, 
-  Circle,
-  Target,
-  Brain,
-  AlertTriangle,
-  Save,
-  Calendar
-} from 'lucide-react-native';
+import { ChevronLeft, Plus, Minus, CircleCheck as CheckCircle, Circle as XCircle, Circle, Target, Brain, TriangleAlert as AlertTriangle, Save, Calendar } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // TypeScript interfaces
