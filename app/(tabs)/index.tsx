@@ -77,53 +77,58 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: Platform.OS === 'ios' ? 88 + insets.bottom + 20 : 68 + insets.bottom + 20
-        }}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity 
-              style={styles.avatar}
-              onPress={handleProfilePress}
-              activeOpacity={0.7}
-            >
-              <User size={20} color="#FFFFFF" strokeWidth={1.5} />
-            </TouchableOpacity>
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>{userData.profile.name}</Text>
-              <Text style={styles.userLevel}>
-                Level {userData.profile.level} • {userData.profile.totalXP.toLocaleString()} XP
-              </Text>
-            </View>
-          </View>
-          
-          <View style={styles.headerRight}>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={handleNotificationsPress}
-              activeOpacity={0.7}
-            >
-              <Bell size={20} color="#A6A6A6" strokeWidth={1.5} />
-              {notifications > 0 && (
-                <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationText}>{notifications}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => router.push('/settings')}
-              activeOpacity={0.7}
-            >
-              <Settings size={20} color="#A6A6A6" strokeWidth={1.5} />
-            </TouchableOpacity>
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity 
+            style={styles.avatar}
+            onPress={handleProfilePress}
+            activeOpacity={0.7}
+          >
+            <User size={20} color="#FFFFFF" strokeWidth={1.5} />
+          </TouchableOpacity>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{userData.profile.name}</Text>
+            <Text style={styles.userLevel}>
+              Level {userData.profile.level} • {userData.profile.totalXP.toLocaleString()} XP
+            </Text>
           </View>
         </View>
+        
+        <View style={styles.headerRight}>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={handleNotificationsPress}
+            activeOpacity={0.7}
+          >
+            <Bell size={20} color="#A6A6A6" strokeWidth={1.5} />
+            {notifications > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationText}>{notifications}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={() => router.push('/settings')}
+            activeOpacity={0.7}
+          >
+            <Settings size={20} color="#A6A6A6" strokeWidth={1.5} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
+      {/* Scrollable Content */}
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: Platform.OS === 'ios' ? 88 + insets.bottom + 20 : 68 + insets.bottom + 20
+          }
+        ]}
+      >
         {/* Enhanced Success Rate Card */}
         <View style={styles.successRateSection}>
           <View style={styles.successRateCard}>
@@ -338,7 +343,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: Platform.OS === 'android' ? 16 : 8,
-    paddingBottom: 24,
+    paddingBottom: 16,
+    backgroundColor: '#000000',
+    borderBottomWidth: 1,
+    borderBottomColor: '#111111',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -399,6 +407,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 24,
   },
   successRateSection: {
     paddingHorizontal: 24,
