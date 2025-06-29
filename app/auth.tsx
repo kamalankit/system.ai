@@ -8,7 +8,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -32,7 +31,6 @@ export default function AuthScreen() {
   const nameRef = useRef<TextInput>(null);
 
   const handleAuth = () => {
-    Keyboard.dismiss();
     // Simulate authentication
     router.replace('/assessment');
   };
@@ -88,23 +86,18 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView 
         style={styles.formContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
-        bounces={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('hub');
-            }}
+            onPress={() => setMode('hub')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -126,17 +119,10 @@ export default function AuthScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="next"
-                textContentType="emailAddress"
                 autoComplete="email"
+                textContentType="emailAddress"
+                returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
             </View>
 
@@ -152,17 +138,10 @@ export default function AuthScreen() {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="done"
-                textContentType="password"
                 autoComplete="current-password"
+                textContentType="password"
+                returnKeyType="done"
                 onSubmitEditing={handleAuth}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
@@ -180,10 +159,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.forgotButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('forgot');
-            }}
+            onPress={() => setMode('forgot')}
             activeOpacity={0.7}
           >
             <Text style={styles.forgotText}>Forgot Password?</Text>
@@ -199,10 +175,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('signup');
-            }}
+            onPress={() => setMode('signup')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>
@@ -218,23 +191,18 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView 
         style={styles.formContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
-        bounces={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('hub');
-            }}
+            onPress={() => setMode('hub')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -254,17 +222,10 @@ export default function AuthScreen() {
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 autoCapitalize="words"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="next"
-                textContentType="name"
                 autoComplete="name"
+                textContentType="name"
+                returnKeyType="next"
                 onSubmitEditing={() => emailRef.current?.focus()}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
             </View>
 
@@ -280,17 +241,10 @@ export default function AuthScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="next"
-                textContentType="emailAddress"
                 autoComplete="email"
+                textContentType="emailAddress"
+                returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
             </View>
 
@@ -306,17 +260,10 @@ export default function AuthScreen() {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="next"
-                textContentType="newPassword"
                 autoComplete="password-new"
+                textContentType="newPassword"
+                returnKeyType="next"
                 onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
               <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
@@ -343,17 +290,10 @@ export default function AuthScreen() {
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
                 autoCorrect={false}
-                autoFocus={false}
-                blurOnSubmit={false}
-                returnKeyType="done"
-                textContentType="newPassword"
                 autoComplete="password-new"
+                textContentType="newPassword"
+                returnKeyType="done"
                 onSubmitEditing={handleAuth}
-                enablesReturnKeyAutomatically={false}
-                clearButtonMode="while-editing"
-                keyboardDismissMode="none"
-                includeFontPadding={false}
-                textAlignVertical="center"
               />
             </View>
           </View>
@@ -368,10 +308,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('login');
-            }}
+            onPress={() => setMode('login')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>
@@ -387,23 +324,18 @@ export default function AuthScreen() {
     <KeyboardAvoidingView 
       style={styles.keyboardContainer}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView 
         style={styles.formContainer}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
         keyboardDismissMode="none"
-        bounces={false}
       >
         <View style={styles.formHeader}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('login');
-            }}
+            onPress={() => setMode('login')}
             activeOpacity={0.7}
           >
             <ChevronLeft size={24} color="#FFFFFF" />
@@ -428,27 +360,18 @@ export default function AuthScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              autoFocus={false}
-              blurOnSubmit={false}
-              returnKeyType="done"
-              textContentType="emailAddress"
               autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="done"
               onSubmitEditing={() => {
-                Keyboard.dismiss();
                 // Handle send reset link
               }}
-              enablesReturnKeyAutomatically={false}
-              clearButtonMode="while-editing"
-              keyboardDismissMode="none"
-              includeFontPadding={false}
-              textAlignVertical="center"
             />
           </View>
 
           <TouchableOpacity 
             style={styles.submitButton}
             onPress={() => {
-              Keyboard.dismiss();
               // Handle send reset link
             }}
             activeOpacity={0.8}
@@ -458,10 +381,7 @@ export default function AuthScreen() {
 
           <TouchableOpacity
             style={styles.switchButton}
-            onPress={() => {
-              Keyboard.dismiss();
-              setMode('login');
-            }}
+            onPress={() => setMode('login')}
             activeOpacity={0.7}
           >
             <Text style={styles.switchText}>Remember your password? Sign In</Text>
@@ -627,9 +547,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
     minHeight: 24,
-    paddingVertical: 0,
-    includeFontPadding: false,
-    textAlignVertical: 'center',
   },
   eyeButton: {
     padding: 8,
