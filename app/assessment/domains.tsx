@@ -305,15 +305,43 @@ export default function DomainsAssessmentScreen() {
       // Complete assessment and navigate to results
       try {
         const answersString = JSON.stringify(answers);
-        console.log('Navigating to results with answers:', answersString);
-        router.push({
-          pathname: '/assessment/results',
-          params: { answers: answersString }
-        });
+        console.log('Assessment complete. Answers:', answersString);
+        console.log('Total answers collected:', Object.keys(answers).length);
+        
+        // Ensure we have all answers before proceeding
+        if (Object.keys(answers).length < allQuestions.length) {
+          Alert.alert(
+            'Incomplete Assessment', 
+            'Some questions are missing answers. Please review your responses.',
+            [
+              { text: 'Review', style: 'cancel' },
+              { 
+                text: 'Continue Anyway', 
+                onPress: () => navigateToResults(answersString)
+              }
+            ]
+          );
+          return;
+        }
+        
+        navigateToResults(answersString);
       } catch (error) {
-        console.error('Error stringifying answers:', error);
+        console.error('Error processing answers:', error);
         Alert.alert('Error', 'Failed to save assessment results. Please try again.');
       }
+    }
+  };
+
+  const navigateToResults = (answersString: string) => {
+    try {
+      console.log('Navigating to results with answers:', answersString);
+      router.push({
+        pathname: '/assessment/results',
+        params: { answers: answersString }
+      });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Navigation Error', 'Unable to proceed to results. Please try again.');
     }
   };
 

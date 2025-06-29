@@ -8,10 +8,11 @@ import {
   Animated,
   Dimensions,
   Platform,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Target, Brain, Heart, Users, Star, DollarSign, Trophy, ChevronRight, Zap, CircleAlert as AlertCircle } from 'lucide-react-native';
+import { Target, Brain, Heart, Users, Star, DollarSign, Trophy, ChevronRight, Zap, CircleAlert as AlertCircle, RefreshCw } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -45,52 +46,94 @@ export default function AssessmentResultsScreen() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState('Analyzing your responses...');
+  const [hasAnswers, setHasAnswers] = useState(false);
 
   useEffect(() => {
+    // Immediate initialization to prevent black screen
+    console.log('AssessmentResults mounted, starting calculation...');
+    
+    // Start calculation immediately without delay
     calculateResults();
-  }, [answers]);
+    
+    // Fallback timer to prevent infinite loading
+    const fallbackTimer = setTimeout(() => {
+      if (isLoading) {
+        console.log('Fallback timer triggered - forcing results display');
+        setIsLoading(false);
+        if (!results) {
+          setResults(getDefaultResults());
+          setError('Calculation timed out. Showing sample results.');
+        }
+      }
+    }, 8000); // 8 second maximum loading time
+
+    return () => {
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
 
   const calculateResults = async () => {
     try {
+      console.log('Starting assessment calculation...');
+      console.log('Received answers parameter:', answers);
+      
       setIsLoading(true);
       setError(null);
-      setLoadingProgress(0);
+      setLoadingProgress(10);
       
-      // Simulate progress updates with messages
+      // Check if we have valid answers
+      let parsedAnswers = {};
+      let answersValid = false;
+      
+      if (answers) {
+        try {
+          // Handle both string and already parsed objects
+          if (typeof answers === 'string') {
+            parsedAnswers = JSON.parse(answers);
+          } else if (typeof answers === 'object') {
+            parsedAnswers = answers;
+          }
+          
+          answersValid = Object.keys(parsedAnswers).length > 0;
+          setHasAnswers(answersValid);
+          console.log('Parsed answers successfully:', Object.keys(parsedAnswers).length, 'answers found');
+        } catch (parseError) {
+          console.warn('Error parsing answers:', parseError);
+          setHasAnswers(false);
+        }
+      } else {
+        console.warn('No answers parameter provided');
+        setHasAnswers(false);
+      }
+
+      // Faster progress updates for mobile
       const progressSteps = [
-        { progress: 20, message: 'Analyzing your responses...' },
-        { progress: 40, message: 'Calculating domain scores...' },
-        { progress: 60, message: 'Determining your rank...' },
-        { progress: 80, message: 'Generating insights...' },
-        { progress: 100, message: 'Finalizing results...' }
+        { progress: 25, message: 'Processing responses...', delay: 200 },
+        { progress: 50, message: 'Calculating scores...', delay: 300 },
+        { progress: 75, message: 'Determining rank...', delay: 300 },
+        { progress: 90, message: 'Finalizing...', delay: 200 },
+        { progress: 100, message: 'Complete!', delay: 100 }
       ];
 
       for (const step of progressSteps) {
         setLoadingMessage(step.message);
         setLoadingProgress(step.progress);
-        await new Promise(resolve => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, step.delay));
       }
 
-      // Calculate actual results
+      // Calculate results
       let calculatedResults: AssessmentResults;
       
-      if (answers && typeof answers === 'string' && answers.trim() !== '') {
-        try {
-          const parsedAnswers = JSON.parse(answers);
-          if (Object.keys(parsedAnswers).length > 0) {
-            calculatedResults = processAssessmentAnswers(parsedAnswers);
-          } else {
-            throw new Error('No answers found in parsed data');
-          }
-        } catch (parseError) {
-          console.warn('Error parsing answers, using default results:', parseError);
-          calculatedResults = getDefaultResults();
-        }
+      if (answersValid) {
+        console.log('Processing valid answers...');
+        calculatedResults = processAssessmentAnswers(parsedAnswers);
       } else {
-        console.warn('No valid answers provided, using default results');
+        console.log('Using default results due to invalid/missing answers');
         calculatedResults = getDefaultResults();
+        setError('Assessment data was incomplete. Showing sample results.');
       }
       
+      console.log('Setting results:', calculatedResults);
       setResults(calculatedResults);
       setIsLoading(false);
       
@@ -98,19 +141,20 @@ export default function AssessmentResultsScreen() {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 500,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
           toValue: 1,
-          tension: 50,
-          friction: 7,
+          tension: 80,
+          friction: 8,
           useNativeDriver: true,
         }),
       ]).start();
+
     } catch (error) {
-      console.error('Error calculating results:', error);
-      setError('Failed to calculate results. Using default assessment.');
+      console.error('Error in calculateResults:', error);
+      setError('Failed to calculate results. Showing default assessment.');
       setResults(getDefaultResults());
       setIsLoading(false);
       
@@ -118,13 +162,13 @@ export default function AssessmentResultsScreen() {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 500,
           useNativeDriver: true,
         }),
         Animated.spring(scaleAnim, {
           toValue: 1,
-          tension: 50,
-          friction: 7,
+          tension: 80,
+          friction: 8,
           useNativeDriver: true,
         }),
       ]).start();
@@ -218,14 +262,31 @@ export default function AssessmentResultsScreen() {
   };
 
   const handleContinue = () => {
-    router.replace('/(tabs)');
+    try {
+      console.log('Navigating to main app...');
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Navigation Error', 'Unable to continue. Please restart the app.');
+    }
   };
 
   const handleRetry = () => {
-    router.replace('/assessment');
+    try {
+      console.log('Retrying assessment...');
+      router.replace('/assessment');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Navigation Error', 'Unable to retry. Please restart the app.');
+    }
   };
 
-  // Loading state
+  const handleSkipToApp = () => {
+    console.log('Skipping to main app...');
+    router.replace('/(tabs)');
+  };
+
+  // Loading state optimized for mobile
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
@@ -239,7 +300,7 @@ export default function AssessmentResultsScreen() {
           {/* Progress Bar */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <Animated.View 
+              <View 
                 style={[
                   styles.progressFill,
                   { width: `${loadingProgress}%` }
@@ -248,56 +309,69 @@ export default function AssessmentResultsScreen() {
             </View>
             <Text style={styles.progressText}>{loadingProgress}%</Text>
           </View>
+
+          {/* Skip button appears after 3 seconds */}
+          {loadingProgress > 60 && (
+            <TouchableOpacity 
+              style={styles.skipButton}
+              onPress={handleSkipToApp}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.skipButtonText}>Skip to Dashboard</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </SafeAreaView>
     );
   }
 
-  // Error state (but still show results)
-  if (error && results) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-          {/* Error Banner */}
+  // Results display
+  return (
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+        {/* Error Banner for incomplete data */}
+        {error && (
           <View style={styles.errorBanner}>
             <AlertCircle size={16} color="#FFB366" strokeWidth={1.5} />
-            <Text style={styles.errorBannerText}>Using default assessment results</Text>
+            <Text style={styles.errorBannerText}>{error}</Text>
+          </View>
+        )}
+
+        <ScrollView 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <View style={styles.celebrationIcon}>
+              <Trophy size={40} color="#FFD700" strokeWidth={1.5} />
+            </View>
+            <Text style={styles.congratsText}>Assessment Complete!</Text>
+            <Text style={styles.rankAnnouncement}>
+              You are a <Text style={[styles.rankText, { color: getRankColor(results?.overallRank || 'C-Class') }]}>
+                {results?.overallRank || 'C-Class'}
+              </Text> Hunter
+            </Text>
+            <Text style={styles.scoreText}>Overall Score: {results?.totalScore || 65}%</Text>
           </View>
 
-          <ScrollView 
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            {/* Header */}
-            <View style={styles.header}>
-              <View style={styles.celebrationIcon}>
-                <Trophy size={40} color="#FFD700" strokeWidth={1.5} />
+          {/* Overall Rank Card */}
+          <View style={styles.overallCard}>
+            <View style={styles.overallHeader}>
+              <Text style={styles.overallTitle}>Your Hunter Rank</Text>
+              <View style={[styles.rankBadge, { backgroundColor: getRankColor(results?.overallRank || 'C-Class') + '20' }]}>
+                <Text style={[styles.rankBadgeText, { color: getRankColor(results?.overallRank || 'C-Class') }]}>
+                  {results?.overallLevel || 'C'}
+                </Text>
               </View>
-              <Text style={styles.congratsText}>Assessment Complete!</Text>
-              <Text style={styles.rankAnnouncement}>
-                You are a <Text style={[styles.rankText, { color: getRankColor(results.overallRank) }]}>
-                  {results.overallRank}
-                </Text> Hunter
-              </Text>
-              <Text style={styles.scoreText}>Overall Score: {results.totalScore}%</Text>
             </View>
+            <Text style={styles.rankDescription}>
+              {getRankInfo(results?.totalScore || 65).description}
+            </Text>
+          </View>
 
-            {/* Overall Rank Card */}
-            <View style={styles.overallCard}>
-              <View style={styles.overallHeader}>
-                <Text style={styles.overallTitle}>Your Hunter Rank</Text>
-                <View style={[styles.rankBadge, { backgroundColor: getRankColor(results.overallRank) + '20' }]}>
-                  <Text style={[styles.rankBadgeText, { color: getRankColor(results.overallRank) }]}>
-                    {results.overallLevel}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.rankDescription}>
-                {getRankInfo(results.totalScore).description}
-              </Text>
-            </View>
-
-            {/* Domain Results */}
+          {/* Domain Results */}
+          {results && (
             <View style={styles.domainsSection}>
               <Text style={styles.sectionTitle}>Domain Breakdown</Text>
               <View style={styles.domainsGrid}>
@@ -313,10 +387,10 @@ export default function AssessmentResultsScreen() {
                         <Text style={styles.domainScoreText}>{domain.score}%</Text>
                         <Text style={styles.domainRank}>{domain.level}-Class</Text>
                       </View>
-                      <View style={styles.progressBar}>
+                      <View style={styles.progressBarSmall}>
                         <View 
                           style={[
-                            styles.progressFill, 
+                            styles.progressFillSmall, 
                             { width: `${domain.score}%`, backgroundColor: domain.color }
                           ]} 
                         />
@@ -326,8 +400,10 @@ export default function AssessmentResultsScreen() {
                 })}
               </View>
             </View>
+          )}
 
-            {/* Insights */}
+          {/* Insights */}
+          {results && (
             <View style={styles.insightsSection}>
               <Text style={styles.sectionTitle}>Your Evolution Path</Text>
               
@@ -355,159 +431,30 @@ export default function AssessmentResultsScreen() {
                 </Text>
               </View>
             </View>
+          )}
 
-            {/* Action Buttons */}
-            <View style={styles.actionButtons}>
+          {/* Action Buttons */}
+          <View style={styles.actionButtons}>
+            {!hasAnswers && (
               <TouchableOpacity 
                 style={styles.retryButton} 
                 onPress={handleRetry}
                 activeOpacity={0.8}
               >
-                <Text style={styles.retryButtonText}>Retake Assessment</Text>
+                <RefreshCw size={16} color="#4DABF7" strokeWidth={1.5} />
+                <Text style={styles.retryButtonText}>Take Real Assessment</Text>
               </TouchableOpacity>
+            )}
 
-              <TouchableOpacity 
-                style={styles.continueButton} 
-                onPress={handleContinue}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.continueButtonText}>Begin Your Evolution</Text>
-                <ChevronRight size={20} color="#000000" strokeWidth={1.5} />
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </Animated.View>
-      </SafeAreaView>
-    );
-  }
-
-  // Normal results state
-  if (!results) {
-    return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-        <View style={styles.errorContainer}>
-          <View style={styles.errorIcon}>
-            <AlertCircle size={40} color="#FF6B6B" strokeWidth={1.5} />
+            <TouchableOpacity 
+              style={styles.continueButton} 
+              onPress={handleContinue}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.continueButtonText}>Begin Your Evolution</Text>
+              <ChevronRight size={20} color="#000000" strokeWidth={1.5} />
+            </TouchableOpacity>
           </View>
-          <Text style={styles.errorTitle}>Unable to Load Results</Text>
-          <Text style={styles.errorMessage}>
-            We couldn't process your assessment results. Please try again.
-          </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>Retry Assessment</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.skipButton} onPress={handleContinue}>
-            <Text style={styles.skipButtonText}>Skip to Dashboard</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.celebrationIcon}>
-              <Trophy size={40} color="#FFD700" strokeWidth={1.5} />
-            </View>
-            <Text style={styles.congratsText}>Assessment Complete!</Text>
-            <Text style={styles.rankAnnouncement}>
-              You are a <Text style={[styles.rankText, { color: getRankColor(results.overallRank) }]}>
-                {results.overallRank}
-              </Text> Hunter
-            </Text>
-            <Text style={styles.scoreText}>Overall Score: {results.totalScore}%</Text>
-          </View>
-
-          {/* Overall Rank Card */}
-          <View style={styles.overallCard}>
-            <View style={styles.overallHeader}>
-              <Text style={styles.overallTitle}>Your Hunter Rank</Text>
-              <View style={[styles.rankBadge, { backgroundColor: getRankColor(results.overallRank) + '20' }]}>
-                <Text style={[styles.rankBadgeText, { color: getRankColor(results.overallRank) }]}>
-                  {results.overallLevel}
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.rankDescription}>
-              {getRankInfo(results.totalScore).description}
-            </Text>
-          </View>
-
-          {/* Domain Results */}
-          <View style={styles.domainsSection}>
-            <Text style={styles.sectionTitle}>Domain Breakdown</Text>
-            <View style={styles.domainsGrid}>
-              {results.domains.map((domain) => {
-                const Icon = domain.icon;
-                return (
-                  <View key={domain.id} style={styles.domainCard}>
-                    <View style={[styles.domainIcon, { backgroundColor: domain.color + '20' }]}>
-                      <Icon size={24} color={domain.color} strokeWidth={1.5} />
-                    </View>
-                    <Text style={styles.domainName}>{domain.name}</Text>
-                    <View style={styles.domainScore}>
-                      <Text style={styles.domainScoreText}>{domain.score}%</Text>
-                      <Text style={styles.domainRank}>{domain.level}-Class</Text>
-                    </View>
-                    <View style={styles.progressBarSmall}>
-                      <View 
-                        style={[
-                          styles.progressFillSmall, 
-                          { width: `${domain.score}%`, backgroundColor: domain.color }
-                        ]} 
-                      />
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-
-          {/* Insights */}
-          <View style={styles.insightsSection}>
-            <Text style={styles.sectionTitle}>Your Evolution Path</Text>
-            
-            <View style={styles.insightCard}>
-              <Text style={styles.insightTitle}>🎯 Your Strengths</Text>
-              <Text style={styles.insightText}>
-                You excel in <Text style={styles.highlightText}>{results.strengths.join(' and ')}</Text>. 
-                These are your power domains - leverage them to accelerate growth in other areas.
-              </Text>
-            </View>
-
-            <View style={styles.insightCard}>
-              <Text style={styles.insightTitle}>🚀 Growth Opportunities</Text>
-              <Text style={styles.insightText}>
-                Focus on developing your <Text style={styles.highlightText}>{results.improvements.join(' and ')}</Text> domains. 
-                Small improvements here will have the biggest impact on your overall evolution.
-              </Text>
-            </View>
-
-            <View style={styles.insightCard}>
-              <Text style={styles.insightTitle}>⚡ Next Steps</Text>
-              <Text style={styles.insightText}>
-                Your personalized quest system is ready! Complete daily challenges to earn XP, 
-                level up your domains, and climb the Hunter ranks.
-              </Text>
-            </View>
-          </View>
-
-          {/* Continue Button */}
-          <TouchableOpacity 
-            style={styles.continueButton} 
-            onPress={handleContinue}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.continueButtonText}>Begin Your Evolution</Text>
-            <ChevronRight size={20} color="#000000" strokeWidth={1.5} />
-          </TouchableOpacity>
         </ScrollView>
       </Animated.View>
     </SafeAreaView>
@@ -518,35 +465,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  errorIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#FF6B6B' + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  errorMessage: {
-    fontSize: 16,
-    color: '#A6A6A6',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
   },
   errorBanner: {
     flexDirection: 'row',
@@ -564,6 +482,7 @@ const styles = StyleSheet.create({
     color: '#FFB366',
     fontWeight: '500',
     marginLeft: 8,
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -599,6 +518,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     width: '100%',
     alignItems: 'center',
+    marginBottom: 24,
   },
   progressBar: {
     width: '100%',
@@ -618,15 +538,28 @@ const styles = StyleSheet.create({
     color: '#4DABF7',
     fontWeight: '600',
   },
+  skipButton: {
+    backgroundColor: '#333333',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderWidth: 1,
+    borderColor: '#666666',
+  },
+  skipButtonText: {
+    fontSize: 14,
+    color: '#A6A6A6',
+    fontWeight: '500',
+  },
   content: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
     paddingBottom: 50,
   },
   header: {
     alignItems: 'center',
+    paddingHorizontal: 24,
     paddingTop: Platform.OS === 'android' ? 16 : 8,
     paddingBottom: 32,
   },
@@ -664,6 +597,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#111111',
     borderRadius: 20,
     padding: 24,
+    marginHorizontal: 24,
     marginBottom: 32,
     borderWidth: 1,
     borderColor: '#333333',
@@ -695,6 +629,7 @@ const styles = StyleSheet.create({
   },
   domainsSection: {
     marginBottom: 32,
+    paddingHorizontal: 24,
   },
   sectionTitle: {
     fontSize: 20,
@@ -709,7 +644,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   domainCard: {
-    width: (width - 64) / 2,
+    width: (width - 80) / 2,
     backgroundColor: '#111111',
     borderRadius: 16,
     padding: 16,
@@ -760,6 +695,7 @@ const styles = StyleSheet.create({
   },
   insightsSection: {
     marginBottom: 32,
+    paddingHorizontal: 24,
   },
   insightCard: {
     backgroundColor: '#111111',
@@ -785,6 +721,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   actionButtons: {
+    paddingHorizontal: 24,
     gap: 16,
   },
   retryButton: {
@@ -793,27 +730,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 32,
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#4DABF7',
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 8,
   },
   retryButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#A6A6A6',
-  },
-  skipButton: {
-    backgroundColor: 'transparent',
-    borderRadius: 16,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderWidth: 1,
-    borderColor: '#333333',
-    alignItems: 'center',
-  },
-  skipButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#A6A6A6',
+    color: '#4DABF7',
   },
   continueButton: {
     backgroundColor: '#FFFFFF',
