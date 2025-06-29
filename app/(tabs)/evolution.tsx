@@ -10,12 +10,14 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TrendingUp, Calendar, Award, Target, Brain, Heart, Users, Star, Zap, ChartBar as BarChart3, ChartPie as PieChart, Flame, Trophy } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 import ProgressRing from '@/components/ProgressRing';
 import { userData } from '@/data/mockData';
 
 const { width } = Dimensions.get('window');
 
 export default function EvolutionScreen() {
+  const router = useRouter();
   const [selectedView, setSelectedView] = useState('overview');
   const [selectedDomain, setSelectedDomain] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
@@ -69,7 +71,11 @@ export default function EvolutionScreen() {
       
       {/* Primary Stats Row */}
       <View style={styles.primaryStatsRow}>
-        <View style={styles.primaryStatCard}>
+        <TouchableOpacity
+          style={styles.primaryStatCard}
+          onPress={() => router.push('/progress/analytics')}
+          activeOpacity={0.8}
+        >
           <View style={styles.primaryStatHeader}>
             <View style={[styles.primaryStatIcon, { backgroundColor: '#51CF66' + '20' }]}>
               <TrendingUp size={24} color="#51CF66" strokeWidth={1.5} />
@@ -80,9 +86,13 @@ export default function EvolutionScreen() {
             {userData.profile.totalXP.toLocaleString()}
           </Text>
           <Text style={styles.primaryStatChange}>+240 this week</Text>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.primaryStatCard}>
+        <TouchableOpacity
+          style={styles.primaryStatCard}
+          onPress={() => router.push('/progress/analytics')}
+          activeOpacity={0.8}
+        >
           <View style={styles.primaryStatHeader}>
             <View style={[styles.primaryStatIcon, { backgroundColor: '#FFB366' + '20' }]}>
               <Award size={24} color="#FFB366" strokeWidth={1.5} />
@@ -91,12 +101,16 @@ export default function EvolutionScreen() {
           </View>
           <Text style={styles.primaryStatValue}>{userData.profile.rank}</Text>
           <Text style={styles.primaryStatChange}>Level {userData.profile.level}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* Secondary Stats Grid */}
       <View style={styles.secondaryStatsGrid}>
-        <View style={styles.secondaryStatCard}>
+        <TouchableOpacity
+          style={styles.secondaryStatCard}
+          onPress={() => router.push('/progress/analytics')}
+          activeOpacity={0.8}
+        >
           <View style={styles.secondaryStatIconContainer}>
             <Flame size={20} color="#FF6B6B" strokeWidth={1.5} />
           </View>
@@ -104,9 +118,13 @@ export default function EvolutionScreen() {
             <Text style={styles.secondaryStatValue}>{userData.stats.streak}</Text>
             <Text style={styles.secondaryStatLabel}>Day Streak</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.secondaryStatCard}>
+        <TouchableOpacity
+          style={styles.secondaryStatCard}
+          onPress={() => router.push('/(tabs)/quests')}
+          activeOpacity={0.8}
+        >
           <View style={styles.secondaryStatIconContainer}>
             <Target size={20} color="#4DABF7" strokeWidth={1.5} />
           </View>
@@ -116,9 +134,13 @@ export default function EvolutionScreen() {
             </Text>
             <Text style={styles.secondaryStatLabel}>Today's Quests</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
-        <View style={styles.secondaryStatCard}>
+        <TouchableOpacity
+          style={styles.secondaryStatCard}
+          onPress={() => router.push('/(tabs)/quests')}
+          activeOpacity={0.8}
+        >
           <View style={styles.secondaryStatIconContainer}>
             <Trophy size={20} color="#51CF66" strokeWidth={1.5} />
           </View>
@@ -128,7 +150,7 @@ export default function EvolutionScreen() {
             </Text>
             <Text style={styles.secondaryStatLabel}>Weekly Goal</Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.secondaryStatCard}>
           <View style={styles.secondaryStatIconContainer}>
