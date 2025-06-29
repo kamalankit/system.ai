@@ -10,24 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { 
-  ChevronLeft, 
-  TrendingUp, 
-  TrendingDown, 
-  Minus, 
-  Calendar, 
-  Target, 
-  Brain, 
-  Heart, 
-  Users, 
-  Star, 
-  DollarSign,
-  Flame,
-  Trophy,
-  BarChart3,
-  PieChart,
-  Activity
-} from 'lucide-react-native';
+import { ChevronLeft, TrendingUp, TrendingDown, Minus, Calendar, Target, Brain, Heart, Users, Star, DollarSign, Flame, Trophy, ChartBar as BarChart3, ChartPie as PieChart, Activity } from 'lucide-react-native';
 import { enhancedUserData, getSuccessRateForPeriod, getDomainSuccessRate, getStreakData, getTrendDirection } from '@/data/enhancedMockData';
 import { userData } from '@/data/mockData';
 
