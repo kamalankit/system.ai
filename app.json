@@ -48,6 +48,9 @@
       "eas": {
         "projectId": "your-project-id-here"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }
