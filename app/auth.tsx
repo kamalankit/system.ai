@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, memo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,353 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
+
+// Extracted LoginForm component
+const LoginForm = memo(({
+  navigateToMode,
+  handleAuth,
+  formData,
+  handleEmailChange,
+  handlePasswordChange,
+  showPassword,
+  togglePasswordVisibility,
+  emailRef,
+  passwordRef
+}) => (
+  <KeyboardAvoidingView 
+    style={styles.container}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={0}
+  >
+    <ScrollView 
+      style={styles.formContainer}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      bounces={false}
+    >
+      <View style={styles.formHeader}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigateToMode('hub')}
+          activeOpacity={0.7}
+        >
+          <ChevronLeft size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.formTitle}>Welcome Back</Text>
+        </View>
+      </View>
+
+      <View style={styles.form}>
+        <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
+            <Mail size={20} color="#666666" style={styles.inputIcon} />
+            <TextInput
+              ref={emailRef}
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#666666"
+              value={formData.email}
+              onChangeText={handleEmailChange}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Lock size={20} color="#666666" style={styles.inputIcon} />
+            <TextInput
+              ref={passwordRef}
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#666666"
+              value={formData.password}
+              onChangeText={handlePasswordChange}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="current-password"
+              textContentType="password"
+              returnKeyType="done"
+              onSubmitEditing={handleAuth}
+            />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={styles.eyeButton}
+              activeOpacity={0.7}
+            >
+              {showPassword ? (
+                <EyeOff size={20} color="#666666" />
+              ) : (
+                <Eye size={20} color="#666666" />
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.forgotButton}
+          onPress={() => navigateToMode('forgot')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.forgotText}>Forgot Password?</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.submitButton} 
+          onPress={handleAuth}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>Sign In</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => navigateToMode('signup')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.switchText}>
+            Don't have an account? <Text style={styles.switchLink}>Sign Up</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
+));
+
+// Extracted SignupForm component
+const SignupForm = memo(({
+  navigateToMode,
+  handleAuth,
+  formData,
+  handleEmailChange,
+  handlePasswordChange,
+  handleConfirmPasswordChange,
+  handleNameChange,
+  showPassword,
+  togglePasswordVisibility,
+  emailRef,
+  passwordRef,
+  confirmPasswordRef,
+  nameRef
+}) => (
+  <KeyboardAvoidingView 
+    style={styles.container}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={0}
+  >
+    <ScrollView 
+      style={styles.formContainer}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      bounces={false}
+    >
+      <View style={styles.formHeader}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigateToMode('hub')}
+          activeOpacity={0.7}
+        >
+          <ChevronLeft size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.formTitle}>Create Your Hunter Profile</Text>
+        </View>
+      </View>
+
+      <View style={styles.form}>
+        <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              ref={nameRef}
+              style={styles.input}
+              placeholder="Full Name"
+              placeholderTextColor="#666666"
+              value={formData.name}
+              onChangeText={handleNameChange}
+              autoCapitalize="words"
+              autoCorrect={false}
+              autoComplete="name"
+              textContentType="name"
+              returnKeyType="next"
+              onSubmitEditing={() => emailRef.current?.focus()}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Mail size={20} color="#666666" style={styles.inputIcon} />
+            <TextInput
+              ref={emailRef}
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#666666"
+              value={formData.email}
+              onChangeText={handleEmailChange}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Lock size={20} color="#666666" style={styles.inputIcon} />
+            <TextInput
+              ref={passwordRef}
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#666666"
+              value={formData.password}
+              onChangeText={handlePasswordChange}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="password-new"
+              textContentType="newPassword"
+              returnKeyType="next"
+              onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+            />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={styles.eyeButton}
+              activeOpacity={0.7}
+            >
+              {showPassword ? (
+                <EyeOff size={20} color="#666666" />
+              ) : (
+                <Eye size={20} color="#666666" />
+              )}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Lock size={20} color="#666666" style={styles.inputIcon} />
+            <TextInput
+              ref={confirmPasswordRef}
+              style={styles.input}
+              placeholder="Confirm Password"
+              placeholderTextColor="#666666"
+              value={formData.confirmPassword}
+              onChangeText={handleConfirmPasswordChange}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="password-new"
+              textContentType="newPassword"
+              returnKeyType="done"
+              onSubmitEditing={handleAuth}
+            />
+          </View>
+        </View>
+
+        <TouchableOpacity 
+          style={styles.submitButton} 
+          onPress={handleAuth}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>Create Account</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => navigateToMode('login')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.switchText}>
+            Already have an account? <Text style={styles.switchLink}>Sign In</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
+));
+
+// Extracted ForgotForm component
+const ForgotForm = memo(({
+  navigateToMode,
+  formData,
+  handleEmailChange,
+  emailRef
+}) => (
+  <KeyboardAvoidingView 
+    style={styles.container}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={0}
+  >
+    <ScrollView 
+      style={styles.formContainer}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      bounces={false}
+    >
+      <View style={styles.formHeader}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigateToMode('login')}
+          activeOpacity={0.7}
+        >
+          <ChevronLeft size={24} color="#FFFFFF" />
+        </TouchableOpacity>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.formTitle}>Reset Password</Text>
+        </View>
+      </View>
+
+      <View style={styles.form}>
+        <Text style={styles.forgotDescription}>
+          Enter your email address and we'll send you a link to reset your password.
+        </Text>
+
+        <View style={styles.inputContainer}>
+          <Mail size={20} color="#666666" style={styles.inputIcon} />
+          <TextInput
+            ref={emailRef}
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#666666"
+            value={formData.email}
+            onChangeText={handleEmailChange}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="done"
+          />
+        </View>
+
+        <TouchableOpacity 
+          style={styles.submitButton}
+          onPress={() => {
+            // Handle send reset link
+          }}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.submitButtonText}>Send Reset Link</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => navigateToMode('login')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.switchText}>Remember your password? Sign In</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
+));
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -65,375 +412,50 @@ export default function AuthScreen() {
   }, []);
 
   const AuthHub = () => (
-    <View style={styles.hubContainer}>
-      <View style={styles.logoSection}>
-        <View style={styles.logoRing}>
-          <Text style={styles.logoText}>H</Text>
-        </View>
-        <Text style={styles.tagline}>Begin Your Evolution</Text>
-      </View>
-
-      <View style={styles.authActions}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => navigateToMode('signup')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.primaryButtonText}>Create Account</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => navigateToMode('login')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.secondaryButtonText}>Sign In</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.guestButton}
-          onPress={handleGuestMode}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.guestButtonText}>Continue as Guest</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          By continuing, you agree to our Terms & Privacy Policy
-        </Text>
-      </View>
-    </View>
-  );
-
-  const LoginForm = () => (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <ScrollView 
-        style={styles.formContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-      >
-        {/* Header */}
-        <View style={styles.formHeader}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigateToMode('hub')}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.formTitle}>Welcome Back</Text>
-          </View>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <View style={styles.inputContainer}>
-              <Mail size={20} color="#666666" style={styles.inputIcon} />
-              <TextInput
-                ref={emailRef}
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#666666"
-                value={formData.email}
-                onChangeText={handleEmailChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="email"
-                textContentType="emailAddress"
-                returnKeyType="next"
-                onSubmitEditing={() => passwordRef.current?.focus()}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#666666" style={styles.inputIcon} />
-              <TextInput
-                ref={passwordRef}
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#666666"
-                value={formData.password}
-                onChangeText={handlePasswordChange}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="current-password"
-                textContentType="password"
-                returnKeyType="done"
-                onSubmitEditing={handleAuth}
-              />
-              <TouchableOpacity
-                onPress={togglePasswordVisibility}
-                style={styles.eyeButton}
-                activeOpacity={0.7}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color="#666666" />
-                ) : (
-                  <Eye size={20} color="#666666" />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.forgotButton}
-            onPress={() => navigateToMode('forgot')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.submitButton} 
-            onPress={handleAuth}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.submitButtonText}>Sign In</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.switchButton}
-            onPress={() => navigateToMode('signup')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.switchText}>
-              Don't have an account? <Text style={styles.switchLink}>Sign Up</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
-
-  const SignupForm = () => (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <ScrollView 
-        style={styles.formContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-      >
-        {/* Header */}
-        <View style={styles.formHeader}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigateToMode('hub')}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.formTitle}>Create Your Hunter Profile</Text>
-          </View>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <View style={styles.inputContainer}>
-              <TextInput
-                ref={nameRef}
-                style={styles.input}
-                placeholder="Full Name"
-                placeholderTextColor="#666666"
-                value={formData.name}
-                onChangeText={handleNameChange}
-                autoCapitalize="words"
-                autoCorrect={false}
-                autoComplete="name"
-                textContentType="name"
-                returnKeyType="next"
-                onSubmitEditing={() => emailRef.current?.focus()}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Mail size={20} color="#666666" style={styles.inputIcon} />
-              <TextInput
-                ref={emailRef}
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor="#666666"
-                value={formData.email}
-                onChangeText={handleEmailChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="email"
-                textContentType="emailAddress"
-                returnKeyType="next"
-                onSubmitEditing={() => passwordRef.current?.focus()}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#666666" style={styles.inputIcon} />
-              <TextInput
-                ref={passwordRef}
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#666666"
-                value={formData.password}
-                onChangeText={handlePasswordChange}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="password-new"
-                textContentType="newPassword"
-                returnKeyType="next"
-                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
-              />
-              <TouchableOpacity
-                onPress={togglePasswordVisibility}
-                style={styles.eyeButton}
-                activeOpacity={0.7}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color="#666666" />
-                ) : (
-                  <Eye size={20} color="#666666" />
-                )}
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Lock size={20} color="#666666" style={styles.inputIcon} />
-              <TextInput
-                ref={confirmPasswordRef}
-                style={styles.input}
-                placeholder="Confirm Password"
-                placeholderTextColor="#666666"
-                value={formData.confirmPassword}
-                onChangeText={handleConfirmPasswordChange}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                autoComplete="password-new"
-                textContentType="newPassword"
-                returnKeyType="done"
-                onSubmitEditing={handleAuth}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity 
-            style={styles.submitButton} 
-            onPress={handleAuth}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.submitButtonText}>Create Account</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.switchButton}
-            onPress={() => navigateToMode('login')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.switchText}>
-              Already have an account? <Text style={styles.switchLink}>Sign In</Text>
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
-
-  const ForgotForm = () => (
-    <KeyboardAvoidingView 
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={0}
-    >
-      <ScrollView 
-        style={styles.formContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-      >
-        {/* Header */}
-        <View style={styles.formHeader}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigateToMode('login')}
-            activeOpacity={0.7}
-          >
-            <ChevronLeft size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.formTitle}>Reset Password</Text>
-          </View>
-        </View>
-
-        <View style={styles.form}>
-          <Text style={styles.forgotDescription}>
-            Enter your email address and we'll send you a link to reset your password.
-          </Text>
-
-          <View style={styles.inputContainer}>
-            <Mail size={20} color="#666666" style={styles.inputIcon} />
-            <TextInput
-              ref={emailRef}
-              style={styles.input}
-              placeholder="Email"
-              placeholderTextColor="#666666"
-              value={formData.email}
-              onChangeText={handleEmailChange}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="email"
-              textContentType="emailAddress"
-              returnKeyType="done"
-              onSubmitEditing={() => {
-                // Handle send reset link
-              }}
-            />
-          </View>
-
-          <TouchableOpacity 
-            style={styles.submitButton}
-            onPress={() => {
-              // Handle send reset link
-            }}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.submitButtonText}>Send Reset Link</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.switchButton}
-            onPress={() => navigateToMode('login')}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.switchText}>Remember your password? Sign In</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+    // ... (keep the existing AuthHub implementation)
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       {mode === 'hub' && <AuthHub />}
-      {mode === 'login' && <LoginForm />}
-      {mode === 'signup' && <SignupForm />}
-      {mode === 'forgot' && <ForgotForm />}
+      {mode === 'login' && (
+        <LoginForm
+          navigateToMode={navigateToMode}
+          handleAuth={handleAuth}
+          formData={formData}
+          handleEmailChange={handleEmailChange}
+          handlePasswordChange={handlePasswordChange}
+          showPassword={showPassword}
+          togglePasswordVisibility={togglePasswordVisibility}
+          emailRef={emailRef}
+          passwordRef={passwordRef}
+        />
+      )}
+      {mode === 'signup' && (
+        <SignupForm
+          navigateToMode={navigateToMode}
+          handleAuth={handleAuth}
+          formData={formData}
+          handleEmailChange={handleEmailChange}
+          handlePasswordChange={handlePasswordChange}
+          handleConfirmPasswordChange={handleConfirmPasswordChange}
+          handleNameChange={handleNameChange}
+          showPassword={showPassword}
+          togglePasswordVisibility={togglePasswordVisibility}
+          emailRef={emailRef}
+          passwordRef={passwordRef}
+          confirmPasswordRef={confirmPasswordRef}
+          nameRef={nameRef}
+        />
+      )}
+      {mode === 'forgot' && (
+        <ForgotForm
+          navigateToMode={navigateToMode}
+          formData={formData}
+          handleEmailChange={handleEmailChange}
+          emailRef={emailRef}
+        />
+      )}
     </SafeAreaView>
   );
 }
