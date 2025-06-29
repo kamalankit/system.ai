@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
-import { Target, CheckCircle, Clock, Zap } from 'lucide-react-native';
+import { Target, CircleCheck as CheckCircle, Clock, Zap } from 'lucide-react-native';
 import { userData } from '@/data/mockData';
 
 interface DailyProgressCardProps {
