@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Bell, Trophy, Target, Users, Flame, Star, CircleCheck as CheckCircle, Clock, Gift, Zap, Calendar, Settings, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Bell, Trophy, Target, Users, Flame, Star, CircleCheck as CheckCircle, Clock, Gift, Zap, Calendar, Settings, Trash2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCustomAlert } from '@/hooks/useCustomAlert';
 import CustomAlert from '@/components/CustomAlert';
