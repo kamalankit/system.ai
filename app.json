@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "systemai",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
@@ -49,8 +49,6 @@
         "projectId": "your-project-id-here"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    }
+    "sdkVersion": "53.0.0"
   }
 }
