@@ -3,8 +3,7 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      // Only keep react-native-reanimated/plugin
-      // expo-router/babel is now included in babel-preset-expo
+      'nativewind/babel',
       'react-native-reanimated/plugin',
     ],
   };
