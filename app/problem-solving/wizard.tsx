@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -44,13 +44,13 @@ export default function ProblemSolvingWizard() {
 
   const totalSteps = 5;
 
-  const commonTriggers = [
+  const commonTriggers = useMemo(() => [
     'Stress', 'Fatigue', 'Social pressure', 'Boredom', 'Anxiety',
     'Overwhelm', 'Perfectionism', 'Fear of failure', 'Procrastination',
     'Lack of clarity', 'External expectations', 'Time pressure'
-  ];
+  ], []);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (validateCurrentStep()) {
       if (currentStep < totalSteps) {
         setCurrentStep(currentStep + 1);
@@ -58,15 +58,15 @@ export default function ProblemSolvingWizard() {
         saveProblemSolution();
       }
     }
-  };
+  }, [currentStep, problemData]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }, [currentStep]);
 
-  const validateCurrentStep = () => {
+  const validateCurrentStep = useCallback(() => {
     switch (currentStep) {
       case 1:
         if (!problemData.problem?.trim()) {
@@ -100,7 +100,7 @@ export default function ProblemSolvingWizard() {
         break;
     }
     return true;
-  };
+  }, [currentStep, problemData]);
 
   const saveProblemSolution = async () => {
     try {
@@ -133,69 +133,78 @@ export default function ProblemSolvingWizard() {
     }
   };
 
-  const toggleTrigger = (trigger: string) => {
-    const triggers = problemData.triggers || [];
-    const updatedTriggers = triggers.includes(trigger)
-      ? triggers.filter(t => t !== trigger)
-      : [...triggers, trigger];
-    
-    setProblemData({ ...problemData, triggers: updatedTriggers });
-  };
+  const toggleTrigger = useCallback((trigger: string) => {
+    setProblemData(prev => {
+      const triggers = prev.triggers || [];
+      const updatedTriggers = triggers.includes(trigger)
+        ? triggers.filter(t => t !== trigger)
+        : [...triggers, trigger];
+      
+      return { ...prev, triggers: updatedTriggers };
+    });
+  }, []);
 
-  const addSolution = (solution: string) => {
+  const addSolution = useCallback((solution: string) => {
     if (solution.trim()) {
-      const solutions = problemData.solutions || [];
-      setProblemData({ 
-        ...problemData, 
-        solutions: [...solutions, solution.trim()] 
+      setProblemData(prev => {
+        const solutions = prev.solutions || [];
+        return { 
+          ...prev, 
+          solutions: [...solutions, solution.trim()] 
+        };
       });
     }
-  };
+  }, []);
 
-  const removeSolution = (index: number) => {
-    const solutions = problemData.solutions || [];
-    setProblemData({ 
-      ...problemData, 
-      solutions: solutions.filter((_, i) => i !== index) 
+  const removeSolution = useCallback((index: number) => {
+    setProblemData(prev => {
+      const solutions = prev.solutions || [];
+      return { 
+        ...prev, 
+        solutions: solutions.filter((_, i) => i !== index) 
+      };
     });
-  };
+  }, []);
 
-  const addActionItem = (item: string) => {
+  const addActionItem = useCallback((item: string) => {
     if (item.trim()) {
-      const actionPlan = problemData.actionPlan || [];
-      setProblemData({ 
-        ...problemData, 
-        actionPlan: [...actionPlan, item.trim()] 
+      setProblemData(prev => {
+        const actionPlan = prev.actionPlan || [];
+        return { 
+          ...prev, 
+          actionPlan: [...actionPlan, item.trim()] 
+        };
       });
     }
-  };
+  }, []);
 
-  const removeActionItem = (index: number) => {
-    const actionPlan = problemData.actionPlan || [];
-    setProblemData({ 
-      ...problemData, 
-      actionPlan: actionPlan.filter((_, i) => i !== index) 
+  const removeActionItem = useCallback((index: number) => {
+    setProblemData(prev => {
+      const actionPlan = prev.actionPlan || [];
+      return { 
+        ...prev, 
+        actionPlan: actionPlan.filter((_, i) => i !== index) 
+      };
     });
-  };
+  }, []);
 
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1ProblemIdentification />;
-      case 2:
-        return <Step2TriggerAnalysis />;
-      case 3:
-        return <Step3ImpactAssessment />;
-      case 4:
-        return <Step4SolutionDevelopment />;
-      case 5:
-        return <Step5ActionPlanning />;
-      default:
-        return null;
-    }
-  };
+  const updateProblemText = useCallback((text: string) => {
+    setProblemData(prev => ({ ...prev, problem: text }));
+  }, []);
 
-  const Step1ProblemIdentification = () => (
+  const updateLongTermImpact = useCallback((text: string) => {
+    setProblemData(prev => ({ ...prev, longTermImpact: text }));
+  }, []);
+
+  const updateEmotionalImpact = useCallback((value: number) => {
+    setProblemData(prev => ({ ...prev, emotionalImpact: value }));
+  }, []);
+
+  const updateHasControl = useCallback((hasControl: boolean) => {
+    setProblemData(prev => ({ ...prev, hasControl }));
+  }, []);
+
+  const Step1ProblemIdentification = useMemo(() => (
     <View style={styles.stepContainer}>
       <View style={styles.stepHeader}>
         <Brain size={32} color="#4DABF7" strokeWidth={1.5} />
@@ -210,7 +219,7 @@ export default function ProblemSolvingWizard() {
         placeholder="Describe the problem in detail..."
         placeholderTextColor="#666666"
         value={problemData.problem}
-        onChangeText={(text) => setProblemData({ ...problemData, problem: text })}
+        onChangeText={updateProblemText}
         multiline
         numberOfLines={6}
         textAlignVertical="top"
@@ -224,9 +233,9 @@ export default function ProblemSolvingWizard() {
         </Text>
       </View>
     </View>
-  );
+  ), [problemData.problem, updateProblemText]);
 
-  const Step2TriggerAnalysis = () => (
+  const Step2TriggerAnalysis = useMemo(() => (
     <View style={styles.stepContainer}>
       <View style={styles.stepHeader}>
         <Search size={32} color="#51CF66" strokeWidth={1.5} />
@@ -269,9 +278,9 @@ export default function ProblemSolvingWizard() {
         }}
       />
     </View>
-  );
+  ), [problemData.triggers, commonTriggers, toggleTrigger]);
 
-  const Step3ImpactAssessment = () => (
+  const Step3ImpactAssessment = useMemo(() => (
     <View style={styles.stepContainer}>
       <View style={styles.stepHeader}>
         <AlertTriangle size={32} color="#FFB366" strokeWidth={1.5} />
@@ -288,7 +297,7 @@ export default function ProblemSolvingWizard() {
           placeholder="How will this problem affect your future if left unsolved?"
           placeholderTextColor="#666666"
           value={problemData.longTermImpact}
-          onChangeText={(text) => setProblemData({ ...problemData, longTermImpact: text })}
+          onChangeText={updateLongTermImpact}
           multiline
           numberOfLines={4}
           textAlignVertical="top"
@@ -302,10 +311,7 @@ export default function ProblemSolvingWizard() {
         <View style={styles.sliderContainer}>
           <TouchableOpacity
             style={styles.sliderButton}
-            onPress={() => setProblemData({ 
-              ...problemData, 
-              emotionalImpact: Math.max(0, (problemData.emotionalImpact || 50) - 10) 
-            })}
+            onPress={() => updateEmotionalImpact(Math.max(0, (problemData.emotionalImpact || 50) - 10))}
           >
             <Text style={styles.sliderButtonText}>-</Text>
           </TouchableOpacity>
@@ -319,10 +325,7 @@ export default function ProblemSolvingWizard() {
           </View>
           <TouchableOpacity
             style={styles.sliderButton}
-            onPress={() => setProblemData({ 
-              ...problemData, 
-              emotionalImpact: Math.min(100, (problemData.emotionalImpact || 50) + 10) 
-            })}
+            onPress={() => updateEmotionalImpact(Math.min(100, (problemData.emotionalImpact || 50) + 10))}
           >
             <Text style={styles.sliderButtonText}>+</Text>
           </TouchableOpacity>
@@ -337,7 +340,7 @@ export default function ProblemSolvingWizard() {
               styles.controlButton,
               problemData.hasControl && styles.controlButtonSelected
             ]}
-            onPress={() => setProblemData({ ...problemData, hasControl: true })}
+            onPress={() => updateHasControl(true)}
             activeOpacity={0.8}
           >
             <Text style={[
@@ -352,7 +355,7 @@ export default function ProblemSolvingWizard() {
               styles.controlButton,
               !problemData.hasControl && styles.controlButtonSelected
             ]}
-            onPress={() => setProblemData({ ...problemData, hasControl: false })}
+            onPress={() => updateHasControl(false)}
             activeOpacity={0.8}
           >
             <Text style={[
@@ -365,10 +368,15 @@ export default function ProblemSolvingWizard() {
         </View>
       </View>
     </View>
-  );
+  ), [problemData.longTermImpact, problemData.emotionalImpact, problemData.hasControl, updateLongTermImpact, updateEmotionalImpact, updateHasControl]);
 
   const Step4SolutionDevelopment = () => {
     const [newSolution, setNewSolution] = useState('');
+
+    const handleAddSolution = useCallback(() => {
+      addSolution(newSolution);
+      setNewSolution('');
+    }, [newSolution, addSolution]);
 
     return (
       <View style={styles.stepContainer}>
@@ -387,17 +395,11 @@ export default function ProblemSolvingWizard() {
             placeholderTextColor="#666666"
             value={newSolution}
             onChangeText={setNewSolution}
-            onSubmitEditing={() => {
-              addSolution(newSolution);
-              setNewSolution('');
-            }}
+            onSubmitEditing={handleAddSolution}
           />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => {
-              addSolution(newSolution);
-              setNewSolution('');
-            }}
+            onPress={handleAddSolution}
             activeOpacity={0.8}
           >
             <Text style={styles.addButtonText}>Add</Text>
@@ -434,6 +436,11 @@ export default function ProblemSolvingWizard() {
   const Step5ActionPlanning = () => {
     const [newAction, setNewAction] = useState('');
 
+    const handleAddAction = useCallback(() => {
+      addActionItem(newAction);
+      setNewAction('');
+    }, [newAction, addActionItem]);
+
     return (
       <View style={styles.stepContainer}>
         <View style={styles.stepHeader}>
@@ -451,17 +458,11 @@ export default function ProblemSolvingWizard() {
             placeholderTextColor="#666666"
             value={newAction}
             onChangeText={setNewAction}
-            onSubmitEditing={() => {
-              addActionItem(newAction);
-              setNewAction('');
-            }}
+            onSubmitEditing={handleAddAction}
           />
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => {
-              addActionItem(newAction);
-              setNewAction('');
-            }}
+            onPress={handleAddAction}
             activeOpacity={0.8}
           >
             <Text style={styles.addButtonText}>Add</Text>
@@ -501,6 +502,23 @@ export default function ProblemSolvingWizard() {
         </View>
       </View>
     );
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 1:
+        return Step1ProblemIdentification;
+      case 2:
+        return Step2TriggerAnalysis;
+      case 3:
+        return Step3ImpactAssessment;
+      case 4:
+        return <Step4SolutionDevelopment />;
+      case 5:
+        return <Step5ActionPlanning />;
+      default:
+        return null;
+    }
   };
 
   return (
