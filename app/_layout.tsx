@@ -23,7 +23,7 @@ export default function RootLayout() {
           <Stack.Screen name="quest/create" />
           <Stack.Screen name="guild/[id]" />
           <Stack.Screen name="settings" />
-          <Stack.Screen name="journal" />
+          <Stack.Screen name="journal/pointed" />
           <Stack.Screen name="profile/edit" />
           <Stack.Screen name="notifications" />
           <Stack.Screen name="+not-found" />
