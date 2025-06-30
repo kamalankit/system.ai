@@ -3,9 +3,15 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      'expo-router/babel',
-      // This must be last
-      'react-native-reanimated/plugin',
+      [
+        'module-resolver',
+        {
+          alias: {
+            '@': './', // now `@/components/...` maps to project root
+          },
+        },
+      ],
+      'react-native-reanimated/plugin', // must be last
     ],
   };
 };
