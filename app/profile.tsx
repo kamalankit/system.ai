@@ -69,7 +69,7 @@ export default function ProfileScreen() {
   };
 
   const handlePersonalReflection = () => {
-    router.push('/journal/shadow');
+    router.push('/journal/pointed');
   };
 
   const handleSignOut = async () => {
