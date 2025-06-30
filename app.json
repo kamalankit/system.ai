@@ -8,6 +8,7 @@
     "scheme": "systemai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
@@ -18,14 +19,23 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.systemai.hunter-evolution"
+      "bundleIdentifier": "com.systemai.hunter-evolution",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app needs access to camera to capture photos and videos.",
+        "NSMicrophoneUsageDescription": "This app needs access to microphone for video recording."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.systemai.hunterevolution"
+      "package": "com.systemai.hunterevolution",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +43,17 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router", 
-      "expo-font", 
+      "expo-router",
+      "expo-font",
       "expo-web-browser",
-      "expo-camera"
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(system.ai) to access your camera.",
+          "microphonePermission": "Allow $(system.ai) to access your microphone.",
+          "recordAudioAndroid": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -48,7 +65,6 @@
       "eas": {
         "projectId": "your-project-id-here"
       }
-    },
-    "sdkVersion": "53.0.0"
+    }
   }
 }
